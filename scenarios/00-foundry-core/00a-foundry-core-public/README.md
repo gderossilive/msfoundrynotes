@@ -1,14 +1,16 @@
 # Level 00, lane 00a: Foundry Core public
 
 This lane creates a Microsoft Foundry account, a project, and one model deployment. It is the
-smallest independent foundation in the FoundryLab catalog.
+smallest independent foundation in Microsoft Foundry Notes.
 
 ## Prerequisites
 
-- Permission to create AI Services resources in the target resource group.
+- Permission to create a resource group and its resources: bootstrap creates the lane
+  resource group if it does not exist.
+- Permission to assign roles, or an administrator who can grant the caller's inference role.
 - Model quota for the selected model, SKU, capacity, and region.
-- Azure CLI, Azure Developer CLI, Bicep CLI and Bash. See the
-	[repository setup](../../../README.md#prerequisites) before provisioning.
+- Azure CLI, Azure Developer CLI, Bicep CLI, Bash, Git and `jq`. See the
+  [repository setup](../../../README.md#prerequisites) before provisioning.
 
 ## Deploy
 
@@ -22,13 +24,24 @@ Bootstrap preserves the instance token already stored in the selected azd enviro
 a separate resource group and azd environment, run `scripts/bootstrap-scenario-env.sh
 00-foundry-core/00a-foundry-core-public --new-instance`.
 
-Then deploy from this directory:
+Then deploy from this directory with `.env` loaded, as described in the
+[repository guide](../../../README.md#deploy-the-public-variant):
 
 ```bash
-azd provision
+azd provision --environment "$AZURE_ENV_NAME"
 ```
 
-Use `azd down --force --purge` to remove the lane resource group when it is no longer needed.
+If bootstrap used `--new-instance`, pass that new environment name instead.
+
+To remove the lane resource group, confirm the target first, then delete it:
+
+```bash
+azd env get-value AZURE_RESOURCE_GROUP --environment "$AZURE_ENV_NAME"
+azd down --environment "$AZURE_ENV_NAME" --force --purge
+```
+
+Follow the [repository cleanup notes](../../../README.md#cleanup) and verify that the
+resources are gone.
 
 ## Outputs
 

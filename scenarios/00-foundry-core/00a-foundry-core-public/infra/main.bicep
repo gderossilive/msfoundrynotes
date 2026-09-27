@@ -7,13 +7,13 @@ param location string
 param environmentName string
 
 @description('Model deployment name.')
-param modelName string = 'gpt-4.1'
+param modelName string = 'gpt-5-mini'
 
 @description('Model provider format.')
 param modelFormat string = 'OpenAI'
 
 @description('Model version.')
-param modelVersion string = '2025-04-14'
+param modelVersion string = '2025-08-07'
 
 @description('Model deployment SKU name.')
 param modelSkuName string = 'GlobalStandard'

@@ -124,8 +124,13 @@ modules/core/              Shared Foundry resource, project and model module
 scripts/                   Bootstrap, metadata, security helpers and local tests
 docs/testing.md            Live checks and manual keyless inference
 .env.example               Non-secret configuration template
+LICENSE                    MIT License
 ```
 
 Technical names containing `FoundryLab` are retained to keep deployment naming
 and test contracts consistent with the source templates. No local environment
 state, private memory, credentials or source-repository Git history is included.
+
+## License
+
+Licensed under the [MIT License](LICENSE).
