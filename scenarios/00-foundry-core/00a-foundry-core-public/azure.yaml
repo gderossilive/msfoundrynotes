@@ -1,0 +1,6 @@
+name: foundrylab-00-core
+resourceGroup: ${AZURE_RESOURCE_GROUP}
+infra:
+  provider: bicep
+  path: ./infra
+  module: main

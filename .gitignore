@@ -1,0 +1,29 @@
+# Repo-local ignores
+
+# Instance memory (never commit)
+memory.md
+
+# Local deployment configuration
+.env
+.env.*
+!.env.example
+.azure/
+*.pem
+*.key
+*.pfx
+*.p12
+**/infra/main.json
+**/infra/main.parameters.json
+
+# Python environments, caches, and test output
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build and editor output
+dist/
+build/
+.DS_Store
