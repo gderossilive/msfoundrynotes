@@ -33,7 +33,8 @@ Static compilation does not prove Azure deployment or inference. Follow the
 
 1. Review regional availability, quota, permissions, policy requirements and costs.
 2. Authorize and run the public lane's deployment in its own environment.
-3. Run its live checks and test inference with an authorized client.
+3. Run its live checks and test inference with the
+   [Chat Completions sample](app/README.md).
 4. Verify cleanup before marking the environment as removed.
 
 Use the [public repository guide](../../README.md) for setup and the
