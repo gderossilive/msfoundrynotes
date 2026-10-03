@@ -3,6 +3,11 @@
 This lane creates a Microsoft Foundry account, a project, and one model deployment. It is the
 smallest independent foundation in Microsoft Foundry Notes.
 
+For a step-by-step explanation of the infrastructure, read the
+[main.bicep learning guide](infra/main.md). It covers parameters, naming,
+the shared module, identities, dependencies, outputs, and the caller
+permissions that must be assigned separately.
+
 ## Prerequisites
 
 - Permission to create a resource group and its resources: bootstrap creates the lane
