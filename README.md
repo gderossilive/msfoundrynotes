@@ -96,9 +96,10 @@ suite. Shared helper fixtures exercise additional naming and input-validation
 cases; they do not require other scenarios to be present or deploy them.
 
 Follow [Testing and inference](docs/testing.md) for parameter compilation,
-explicit-environment live checks, caller permissions and a keyless inference request.
-Core inference is a manual client test; the lane wrapper does not implement
-Core `--e2e` automation.
+explicit-environment live checks and caller permissions. Use the
+[Chat Completions sample](scenarios/00-foundry-core/app/README.md) for a
+keyless inference request. The lane wrapper does not implement Core `--e2e`
+automation.
 
 Static compilation is not proof of successful provisioning or inference.
 
@@ -120,6 +121,7 @@ soft-deleted Foundry resource. A failed cleanup can leave billable resources.
 
 ```text
 scenarios/00-foundry-core/   Level overview, metadata and the 00a public azd lane
+scenarios/00-foundry-core/app/  Keyless Python Chat Completions client and tests
 modules/core/              Shared Foundry resource, project and model module
 scripts/                   Bootstrap, metadata, security helpers and local tests
 docs/testing.md            Live checks and manual keyless inference

@@ -51,6 +51,10 @@ Live checks inspect the deployed resources and model. These control-plane checks
 do not send an inference request or prove that the caller can reach and use the
 model endpoint.
 
+For the repository's Python inference client, setup instructions, and mocked
+unit tests, see the
+[Chat Completions sample](../scenarios/00-foundry-core/app/README.md).
+
 ## Caller authorization
 
 For the account-level Azure OpenAI endpoint used below, the calling identity
