@@ -2,5 +2,5 @@
   "schemaVersion": 1,
   "level": "00",
   "slug": "foundry-core",
-  "implementedLanes": ["a"]
+  "implementedLanes": ["a", "c"]
 }

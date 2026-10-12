@@ -1,18 +1,14 @@
 # Level 00, lane 00a tests
 
-Run the shared structure, Bicep and `azd` contract checks from the lane directory:
+Esegue i controlli comuni di struttura, Bicep, contratto `azd` e i test unitari
+del client Python Chat Completions:
 
 ```bash
 ./test/test-scenario.sh
 ```
 
-After provisioning, use `--live` with the exact deployed environment:
+Dopo un deployment azd, usa `--live` con l'ambiente corretto:
 
 ```bash
 TEST_AZD_ENV=dev ./test/test-scenario.sh --live
 ```
-
-Core does not require a scenario-local blog and does not implement automated
-`--e2e` tests. Follow the [testing guide](../../../../docs/testing.md) for caller
-permissions and manual keyless inference. Live resource checks alone do not
-prove inference.

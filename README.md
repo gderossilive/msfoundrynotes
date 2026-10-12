@@ -1,137 +1,123 @@
 # Microsoft Foundry Notes
 
-Independently deployable learning scenarios for **Microsoft Foundry (new)**.
-This source publication contains **scenario 00: Microsoft Foundry Core**,
-with the **00a public variant** and its deployment and testing dependencies.
-It does not publish the editorial drafts or the rest of the scenario catalog.
+Independently deployable learning scenarios for **Microsoft Foundry (new)**,
+with the technical packages and article sources used by the Microsoft Foundry
+Notes series.
 
-## Included variant
+## Publication schedule
 
-| Lane | Configuration | Validation boundary |
+| Date | Article | Technical release |
 | --- | --- | --- |
-| [00a Public](scenarios/00-foundry-core/00a-foundry-core-public/README.md) | Foundry resource, project and model deployment; public endpoint; Entra ID authentication | Static tests included; run live checks and inference in your environment |
+| 2026-10-13 | [Private by Design, Reachable by Gateway](articles/episode-00c-foundry-core-byo-vnet.md) | `episode-00c-foundry-core-byo-vnet-v1.0.0` |
+| 2026-10-15 | [00c Chat Completions — One Blocked Call, One Policy, One Response](articles/episode-00c-chat-completions.md) | `episode-00c-chat-completions-v1.0.0` |
+| 2026-10-17 | [00a Model Benchmark — Valid JSON, Wrong Priority](articles/episode-00a-model-benchmark.md) | `episode-00a-model-benchmark-v1.0.0` |
 
-The public variant provisions its own resources and requires no other scenario
-to be deployed. It creates no agent, application, VNet, private endpoint, client
-VM, VPN or Bastion.
+See the [article index](articles/README.md) for the complete published sequence
+and LinkedIn image guidance.
+
+## Included scenarios
+
+| Lane | Configuration | Primary purpose |
+| --- | --- | --- |
+| [00a Public](scenarios/00-foundry-core/00a-foundry-core-public/README.md) | Public Foundry endpoint with Entra ID authentication | Chat Completions and the ten-document model benchmark |
+| [00c BYO VNet](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md) | Private Foundry endpoint in a customer-managed VNet, reached through API Management Developer | Private networking and gateway validation |
+
+Each lane provisions its own resources and can be deployed independently. No
+agent, retrieval system, business-data source, VPN, or Bastion host is included.
 
 ## Prerequisites
 
 - Bash on Linux, macOS or WSL, standard shell utilities, `jq`, and Git.
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli),
-  [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
-  and the [Bicep CLI](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install)
-  available through Azure CLI. Use current versions that support Bicep parameter files.
-- An Azure subscription, permission to create the selected resources and any
-  required role assignments, registered resource providers, and sufficient model
-  quota.
-- A model version and deployment type supported in the chosen region. The sample
-  defaults are `gpt-5-mini`, version `2025-08-07`, `GlobalStandard`, capacity `30`.
-  These are configurable examples, not a guarantee of availability. Global
-  deployments do not guarantee inference processing in the resource's region.
+  [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd),
+  and Bicep through Azure CLI.
+- An Azure subscription with the required resource-creation and role-assignment
+  permissions, registered providers, regional model availability, and quota.
+- For lane 00c, API Management Developer capacity and the Entra object IDs of
+  the intended gateway callers.
 
-Review pricing and organizational policy before provisioning. Model usage can
-incur charges. This is a learning template, not a production-ready or
-compliance-certified system. Use synthetic
-data for the initial test.
+Review Azure pricing and organizational policy before provisioning. The
+templates are learning assets, not production-ready or compliance-certified
+systems. Use synthetic data for the included tests.
 
-## Deploy the public variant
+## Configure and deploy
 
-Clone the complete repository; downloading a single scenario directory omits
-shared dependencies. To reproduce a specific revision, check out its commit SHA.
+Clone the complete repository because both lanes depend on shared modules and
+scripts:
 
 ```bash
 git clone https://github.com/gderossilive/msfoundrynotes.git
 cd msfoundrynotes
 chmod +x scripts/*.sh scenarios/*/*/test/test-scenario.sh
-[[ -f .env ]] || cp .env.example .env
+cp .env.example .env
 ```
 
-Edit the local `.env`: set your tenant ID, subscription ID, location, environment
-name and model settings. Change the model name and version together. Keep this
-file uncommitted; never put credentials, keys, tokens or connection strings in it.
-The file is sourced as Bash, so only use trusted content.
+Set the tenant, subscription, region, and environment name in the ignored
+`.env`. Lane 00c also requires the API Management publisher contact and a JSON
+array of allowed Entra object IDs. Do not add keys, tokens, passwords,
+certificates, or connection strings.
 
-Sign in to both CLIs and select the intended subscription. Run these commands
-from the repository root after configuring `.env`:
-
-```bash
-set -a
-source .env
-set +a
-az login --tenant "$AZURE_TENANT_ID"
-az account set --subscription "$AZURE_SUBSCRIPTION_ID"
-azd auth login --tenant-id "$AZURE_TENANT_ID"
-```
-
-Deploy the public lane:
+Sign in to Azure CLI and Azure Developer CLI, then deploy exactly one lane:
 
 ```bash
 lane=00-foundry-core/00a-foundry-core-public
+# Or: lane=00-foundry-core/00c-foundry-core-byo-vnet
 bash scripts/bootstrap-scenario-env.sh "$lane"
 cd "scenarios/$lane"
 azd provision --environment "$AZURE_ENV_NAME"
 ```
 
-Bootstrap creates or selects a lane-local azd environment, creates its resource
-group if needed, and sets `SecurityControl=Ignore` on that group. **This tag is
-not itself an Azure Policy exemption.** Review its effect with your policy owner
-before running bootstrap. `--new-instance` creates a separate environment and
-resource group; use the resulting environment name for provision, tests and cleanup.
-
-The public lane disables key-based authentication. Resource creation permissions are
-not inference permissions: the caller needs its own authorized Entra identity.
-The template does not assign an inference role to the deploying user.
+Bootstrap binds the azd environment to one lane and creates or selects its
+resource group. It applies the lab tag `SecurityControl=Ignore`; this is not an
+Azure Policy exemption and must be reviewed with the policy owner.
 
 ## Test
 
-Local static checks require Azure CLI/Bicep and `jq`, but no Azure deployment:
+Run all local static checks without provisioning:
 
 ```bash
 bash scripts/test-all-scenarios.sh --static
 ```
 
-This runs the included bootstrap and metadata mocks, then the 00a Core lane
-suite. Shared helper fixtures exercise additional naming and input-validation
-cases; they do not require other scenarios to be present or deploy them.
+The checks compile both lanes, validate the separate 00c API Management policy,
+exercise mocked bootstrap behavior, and run the scenario contracts. The Python
+unit tests mock Azure access:
 
-Follow [Testing and inference](docs/testing.md) for parameter compilation,
-explicit-environment live checks and caller permissions. Use the
-[Chat Completions sample](scenarios/00-foundry-core/app/README.md) for a
-keyless inference request. The lane wrapper does not implement Core `--e2e`
-automation.
+```bash
+cd scenarios/00-foundry-core/app
+python -m unittest -v test_chat_completions.py test_benchmark_documents.py
+```
 
-Static compilation is not proof of successful provisioning or inference.
+See [Testing and inference](docs/testing.md) for live checks and the
+[application guide](scenarios/00-foundry-core/app/README.md) for Chat
+Completions and the document benchmark.
 
 ## Cleanup
 
-From the selected lane directory, verify the target environment before deletion:
+From the selected lane directory, verify the environment and resource group,
+then remove the deployment:
 
 ```bash
 azd env get-value AZURE_RESOURCE_GROUP --environment "$AZURE_ENV_NAME"
 azd down --environment "$AZURE_ENV_NAME" --force --purge
 ```
 
-Use the actual environment name if bootstrap used `--new-instance`. This is a
-destructive operation: confirm the group contains only that lab's resources.
-Read the lane's cleanup notes, verify resources are gone, and review any
-soft-deleted Foundry resource. A failed cleanup can leave billable resources.
+Confirm the resource group is gone. Lane 00c includes an always-on API
+Management Developer instance that remains billable until deleted.
 
 ## Layout
 
 ```text
-scenarios/00-foundry-core/   Level overview, metadata and the 00a public azd lane
-scenarios/00-foundry-core/app/  Keyless Python Chat Completions client and tests
-modules/core/              Shared Foundry resource, project and model module
-scripts/                   Bootstrap, metadata, security helpers and local tests
-docs/testing.md            Live checks and manual keyless inference
-.env.example               Non-secret configuration template
-LICENSE                    MIT License
+articles/                       Article sources and publication images
+scenarios/00-foundry-core/      Level 00 lanes and shared Python application
+modules/                        Shared Foundry, network, and gateway modules
+scripts/                        Bootstrap, policy, metadata, and test helpers
+docs/testing.md                 Static, live, and inference guidance
 ```
 
-Technical names containing `FoundryLab` are retained to keep deployment naming
-and test contracts consistent with the source templates. No local environment
-state, private memory, credentials or source-repository Git history is included.
+Technical names containing `FoundryLab` are retained to preserve the deployment
+and test contracts. Local environment state, private memory, credentials, and
+the source repository history are excluded.
 
 ## License
 

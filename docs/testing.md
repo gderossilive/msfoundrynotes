@@ -2,7 +2,7 @@
 
 Run the local checks before provisioning. Live checks and inference require a
 separately authorized Azure deployment and can incur costs. The current package
-contains only the 00a public lane.
+contains the 00a public lane and the independent 00c BYO VNet lane.
 
 ## Local static checks
 
@@ -13,7 +13,8 @@ bash scripts/test-all-scenarios.sh --static
 ```
 
 The runner checks bootstrap and scenario metadata with mocked Azure commands,
-then compiles 00a and validates its scenario contract. It does
+then compiles both lanes and validates their scenario contracts, including the
+separately applied 00c gateway policy. It does
 not call Azure provisioning APIs. Core has no scenario-local blog requirement.
 
 Compile the parameter files as well, using either their defaults or explicitly
@@ -65,15 +66,18 @@ An administrator with role-assignment permission must grant access if it is not
 already present. Assign it to the actual caller, not automatically to the project
 identity. Allow time for role propagation.
 
-The templates do not grant the deploying user inference access. `az rest` uses
-the current Azure CLI identity and obtains its token internally; do not extract,
-print, paste or persist bearer tokens. Do not enable shell tracing (`set -x`) or
-CLI debug logging for authentication and inference commands.
+Lane 00a grants its signed-in human deployer the account inference role and the
+project role required by Microsoft Foundry Evaluation. Lane 00c grants the
+backend inference role to the gateway identity; callers are authorized by its
+separately applied policy. `az rest` uses the current Azure CLI identity and
+obtains its token internally; do not extract, print, paste or persist bearer
+tokens. Do not enable shell tracing (`set -x`) or CLI debug logging for
+authentication and inference commands.
 
 ## Manual keyless inference
 
-The example targets a chat-completions-compatible model such as the sample
-`gpt-5-mini` deployment. Other model families may require a different API or
+The example targets a chat-completions-compatible model such as the lane 00a
+`gpt-4.1-mini` deployment. Other model families may require a different API or
 request schema. Use only synthetic test input and review token costs first.
 
 From the selected lane directory, with `TEST_AZD_ENV` set and the Azure CLI

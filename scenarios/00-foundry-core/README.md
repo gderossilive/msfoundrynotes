@@ -1,43 +1,38 @@
 # Level 00: Foundry Core
 
-This level establishes a Microsoft Foundry account, project, and model deployment.
-This publication includes only the independently deployable 00a public lane.
-It creates no agent and requires no other lane's deployment.
+This level establishes a Microsoft Foundry account, project, and model
+deployment. It creates no agent and requires no other lane's deployment.
 
 | Lane | Status | Focus |
 | --- | --- | --- |
-| [00a Foundry Core public](00a-foundry-core-public/README.md) | Implemented; static checks passed | Public Foundry foundation |
+| [00a Foundry Core public](00a-foundry-core-public/README.md) | Implemented; static and live checks passed | Public endpoint, Chat Completions, and model evaluation |
+| [00c Foundry Core BYO VNet](00c-foundry-core-byo-vnet/README.md) | Implemented; static and live checks passed | Private endpoint, customer-managed VNet, and API Management test gateway |
 
 ## Network and identity boundaries
 
-Lane 00a enables public access without client IP restrictions. It creates no
-VNet, private endpoint or managed agent network.
+Lane 00a enables public network access, disables key authentication, and grants
+the signed-in human deployer the roles required for model inference and Foundry
+Evaluation.
 
-Key-based authentication is disabled. The account and project use system-assigned
-managed identities. Callers still need their own Entra ID permissions for
-inference; the template does not assign those permissions to the deployer.
+Lane 00c disables public network access and creates a private endpoint, three
+private DNS zones, and API Management Developer in an external VNet subnet.
+The gateway validates the caller and uses its own managed identity to reach the
+model. The initial deployment deliberately omits the API policy so the direct
+failure can be observed before the gateway path is enabled.
+
+Neither lane implements agent outbound isolation, tools, retrieval, application
+hosting, business-data access, VPN, ExpressRoute, or a production gateway tier.
 
 ## Validation status
 
-The public package was checked locally:
+- Both Bicep parameter files compile without diagnostics.
+- Lane 00a static checks validate its caller roles and application contract.
+- Lane 00c static checks validate private networking, the APIM deployment, and
+  the separately applied gateway policy.
+- The Python Chat Completions and benchmark tests use mocks and do not call Azure.
+- Live results described in the articles were observed on 2026-10-01 and
+  2026-10-02; reproduce the checks in your own subscription.
 
-- The 00a Core lane suite passed all 4 static checks.
-- The 00a Bicep parameter file compiled without diagnostics.
-- All 33 bootstrap checks and 7 scenario-metadata checks passed.
-
-No Azure deployment or live inference was performed as part of this update.
-Static compilation does not prove Azure deployment or inference. Follow the
-00a README for prerequisites, costs, validation and cleanup.
-
-## Next steps
-
-1. Review regional availability, quota, permissions, policy requirements and costs.
-2. Authorize and run the public lane's deployment in its own environment.
-3. Run its live checks and test inference with the
-   [Chat Completions sample](app/README.md).
-4. Verify cleanup before marking the environment as removed.
-
-Use the [public repository guide](../../README.md) for setup and the
-[testing guide](../../docs/testing.md) for live checks and manual keyless inference.
-Level 00 has no scenario-local `blog/` directory. Editorial drafts are not included
-in this source publication.
+Use the [repository guide](../../README.md) for setup, the
+[testing guide](../../docs/testing.md) for validation, and the
+[application guide](app/README.md) for the client commands.

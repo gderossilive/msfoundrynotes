@@ -22,6 +22,9 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+scenarios/00-foundry-core/app/benchmark-results.json
+scenarios/00-foundry-core/app/benchmark-foundry-results.json
+scenarios/00-foundry-core/app/benchmark-foundry-gpt-4.1-mini-results.json
 
 # Build and editor output
 dist/

@@ -38,7 +38,12 @@ AZURE_TENANT_ID=11111111-1111-1111-1111-111111111111
 AZURE_SUBSCRIPTION_ID=22222222-2222-2222-2222-222222222222
 AZURE_LOCATION=italynorth
 AZURE_ENV_NAME=test
+AZURE_DEFAULT_MODEL=gpt-5-mini
+AZURE_DEFAULT_MODEL_VERSION=2025-08-07
 AZURE_ENABLE_JUMPBOX=false
+AZURE_APIM_PUBLISHER_EMAIL=platform-team@example.com
+AZURE_APIM_PUBLISHER_NAME='FoundryLab platform team'
+AZURE_APIM_ALLOWED_PRINCIPAL_IDS='["44444444-4444-4444-4444-444444444444"]'
 EOF
   cat >"$test_root/bin/azd" <<'EOF'
 #!/usr/bin/env bash
@@ -69,6 +74,12 @@ case "$1 ${2:-}" in
   'group exists')
     printf '%s\n' "${MOCK_AZ_GROUP_EXISTS:-false}"
     ;;
+  'account show')
+    printf '%s\n' "${MOCK_AZ_ACCOUNT_TYPE:-user}"
+    ;;
+  'ad signed-in-user')
+    printf '%s\n' "${MOCK_AZ_SIGNED_IN_USER_ID:-33333333-3333-3333-3333-333333333333}"
+    ;;
 esac
 EOF
   chmod +x "$test_root/bin/az"
@@ -78,6 +89,8 @@ run_bootstrap() {
   PATH="$test_root/bin:$PATH" \
     MOCK_AZD_LOG="$test_root/azd.log" \
     MOCK_AZ_LOG="$test_root/az.log" \
+    MOCK_AZ_ACCOUNT_TYPE="${MOCK_AZ_ACCOUNT_TYPE:-user}" \
+    MOCK_AZ_SIGNED_IN_USER_ID="${MOCK_AZ_SIGNED_IN_USER_ID:-33333333-3333-3333-3333-333333333333}" \
     MOCK_AZD_CONFLICT_VARIABLE="${1:-}" \
     MOCK_AZD_CONFLICT_VALUE="${2:-}" \
     bash "$test_root/scripts/bootstrap-scenario-env.sh" "${test_lane:-01-basic-agent/01a-basic-agent-public}"
@@ -116,7 +129,7 @@ pass 'rejects a resource group binding mismatch before environment mutation'
 ! grep -q 'AZURE_MANAGED_COMPUTE_' "$test_root/azd.log"
 pass 'does not persist Managed Compute inputs for existing GPT lanes'
 
-for core_lane in 00a-foundry-core-public; do
+for core_lane in 00a-foundry-core-public 00c-foundry-core-byo-vnet; do
   test_lane="00-foundry-core/$core_lane"
   mkdir -p "$test_root/scenarios/$test_lane"
   : >"$test_root/scenarios/$test_lane/azure.yaml"
@@ -129,6 +142,18 @@ for core_lane in 00a-foundry-core-public; do
   ! grep -q 'AZURE_MANAGED_COMPUTE_' "$test_root/azd.log"
   pass "$core_id bootstrap uses its own network profile and resource group"
 done
+
+grep -q 'AZURE_APIM_ALLOWED_PRINCIPAL_IDS=\["44444444-4444-4444-4444-444444444444"\]' "$test_root/azd.log"
+pass '00c persists its validated caller allowlist'
+
+test_lane='00-foundry-core/00a-foundry-core-public'
+: >"$test_root/azd.log"
+: >"$test_root/az.log"
+run_bootstrap >/dev/null
+grep -q 'AZURE_DEPLOYER_PRINCIPAL_ID=33333333-3333-3333-3333-333333333333' "$test_root/azd.log"
+grep -q 'AZURE_DEFAULT_MODEL=gpt-4.1-mini' "$test_root/azd.log"
+grep -q 'AZURE_DEFAULT_MODEL_VERSION=2025-04-14' "$test_root/azd.log"
+pass '00a persists its human caller and benchmark model'
 
 test_lane='06-foundry-managed-compute/06a-foundry-managed-compute-public'
 mkdir -p "$test_root/scenarios/$test_lane"

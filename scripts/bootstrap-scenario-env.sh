@@ -73,7 +73,7 @@ if [[ ! "$scenario_id" =~ ^[0-9]{2}$ ]]; then
   exit 2
 fi
 
-if [[ "$lane_id" == 04c || "$lane_id" == 05c ]]; then
+if [[ "$lane_id" == 00c || "$lane_id" == 04c || "$lane_id" == 05c ]]; then
   command -v jq >/dev/null 2>&1 || { printf 'jq is required to validate APIM callers.\n' >&2; exit 2; }
   if ! validate_apim_principal_ids "${AZURE_APIM_ALLOWED_PRINCIPAL_IDS:-[]}"; then
     printf 'AZURE_APIM_ALLOWED_PRINCIPAL_IDS must be a JSON array of at most 100 Entra object IDs.\n' >&2
@@ -167,6 +167,33 @@ assert_environment_binding AZURE_TENANT_ID "$AZURE_TENANT_ID"
 assert_environment_binding AZURE_SUBSCRIPTION_ID "$AZURE_SUBSCRIPTION_ID"
 assert_environment_binding AZURE_LOCATION "$AZURE_LOCATION"
 
+deployer_settings=()
+if [[ "$lane_id" == 00a ]]; then
+  deployer_type=$(az account show \
+    --subscription "$AZURE_SUBSCRIPTION_ID" \
+    --query user.type \
+    --output tsv)
+  if [[ "${deployer_type,,}" != user ]]; then
+    printf 'Lane %s requires Azure CLI authentication as a human user for its data-plane role assignments.\n' "$lane_id" >&2
+    exit 2
+  fi
+
+  deployer_principal_id=$(az ad signed-in-user show --query id --output tsv)
+  if [[ ! "$deployer_principal_id" =~ $guid_pattern ]]; then
+    printf 'Azure CLI did not return a valid signed-in user object ID for lane %s.\n' "$lane_id" >&2
+    exit 2
+  fi
+  assert_environment_binding AZURE_DEPLOYER_PRINCIPAL_ID "$deployer_principal_id"
+  deployer_settings=("AZURE_DEPLOYER_PRINCIPAL_ID=$deployer_principal_id")
+fi
+
+model_name="${AZURE_DEFAULT_MODEL:-gpt-5-mini}"
+model_version="${AZURE_DEFAULT_MODEL_VERSION:-2025-08-07}"
+if [[ "$lane_id" == 00a ]]; then
+  model_name='gpt-4.1-mini'
+  model_version='2025-04-14'
+fi
+
 if ! resource_group_token=$(azd env get-value AZURE_RESOURCE_GROUP_TOKEN --environment "$azd_environment_name" 2>/dev/null); then
   resource_group_token=''
 fi
@@ -207,8 +234,8 @@ azd env set \
   "AZURE_LOCATION=$AZURE_LOCATION" \
   "AZURE_RESOURCE_GROUP_TOKEN=$resource_group_token" \
   "AZURE_RESOURCE_GROUP=$resource_group" \
-  "AZURE_DEFAULT_MODEL=${AZURE_DEFAULT_MODEL:-gpt-5-mini}" \
-  "AZURE_DEFAULT_MODEL_VERSION=${AZURE_DEFAULT_MODEL_VERSION:-2025-08-07}" \
+  "AZURE_DEFAULT_MODEL=$model_name" \
+  "AZURE_DEFAULT_MODEL_VERSION=$model_version" \
   "AZURE_DEFAULT_MODEL_SKU=${AZURE_DEFAULT_MODEL_SKU:-GlobalStandard}" \
   "AZURE_DEFAULT_MODEL_CAPACITY=${AZURE_DEFAULT_MODEL_CAPACITY:-30}" \
   "AZURE_ENABLE_JUMPBOX=${AZURE_ENABLE_JUMPBOX:-false}" \
@@ -222,6 +249,7 @@ azd env set \
   "AZURE_APIM_CALLS_PER_MINUTE=${AZURE_APIM_CALLS_PER_MINUTE:-60}" \
   "AZURE_APIM_TOKENS_PER_MINUTE=${AZURE_APIM_TOKENS_PER_MINUTE:-5000}" \
   "AZURE_ENABLE_TOOL_PROBE=${AZURE_ENABLE_TOOL_PROBE:-true}" \
+  "${deployer_settings[@]}" \
   "${managed_compute_settings[@]}"
 
 printf 'Prepared azd environment "%s" for lane "%s" with resource group "%s".\n' "$azd_environment_name" "$1" "$resource_group"

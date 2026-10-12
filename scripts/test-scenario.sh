@@ -83,6 +83,10 @@ run_static() {
   az bicep build --file "$scenario_root/infra/main.bicep" --stdout >/dev/null
   pass "Bicep build"
 
+  if [[ "$lane_id" == 00a ]]; then
+    check_core_public_static
+  fi
+
   if [[ "$lane_id" == 00b || "$lane_id" == 00c ]]; then
     check_core_private_static
   fi
@@ -122,6 +126,41 @@ run_static() {
   done < <(grep '^## ' "$level_root/blog/$(basename "$level_root").md" || true)
   [[ "$section_index" -eq "${#expected_sections[@]}" ]] || fail 'Blog is missing required sections'
   pass "blog contract"
+}
+
+check_core_public_static() {
+  require_command jq
+  local app_file
+  for app_file in \
+    "$level_root/app/chat_completions.py" \
+    "$level_root/app/requirements.txt" \
+    "$level_root/app/test_chat_completions.py"
+  do
+    [[ -f "$app_file" ]] || fail "Missing 00a application file: $app_file"
+  done
+  pass '00a application files'
+
+  local template
+  template=$(az bicep build --file "$scenario_root/infra/main.bicep" --stdout)
+  jq -e '
+    (.parameters.deployerPrincipalId.type == "string") and
+    (.parameters.deployerPrincipalId.minLength == 36) and
+    (.parameters.deployerPrincipalId.maxLength == 36) and
+    ([.resources[] | select(.type == "Microsoft.Authorization/roleAssignments") |
+      select(.properties.principalType == "User" and
+             (.properties.roleDefinitionId | contains("5e0bd9bd-7b93-4f28-af87-19fc36ad61bd")) and
+             (.scope | contains("Microsoft.CognitiveServices/accounts")) and
+             (.dependsOn | length == 1))] | length == 1)
+  ' <<<"$template" >/dev/null || fail '00a deployer model inference role contract'
+  pass '00a deployer model inference role contract'
+
+  jq -e '
+    ([.resources[] | select(.type == "Microsoft.Authorization/roleAssignments") |
+      select(.properties.principalType == "User" and
+             (.properties.roleDefinitionId | contains("53ca6127-db72-4b80-b1b0-d745d6d5456d")) and
+             (.scope | contains("Microsoft.CognitiveServices/accounts/projects")))] | length == 1)
+  ' <<<"$template" >/dev/null || fail '00a deployer Foundry evaluation role contract'
+  pass '00a deployer Foundry evaluation role contract'
 }
 
 check_core_private_static() {
@@ -176,6 +215,31 @@ check_core_private_static() {
     ([.. | objects | select(.type? == "Microsoft.CognitiveServices/accounts/managedNetworks")] | length == 0)
   ' <<<"$template" >/dev/null || fail '00c must not configure agent network injection or a managed network'
   pass '00c has no agent network injection or managed network'
+
+  local policy_template
+  policy_template=$(az bicep build --file "$scenario_root/infra/apim-policy.bicep" --stdout)
+  jq -e '
+    ([.. | objects | select(.type? == "Microsoft.ApiManagement/service" and .sku.name == "Developer")] | length == 1) and
+    ([.. | objects | select(.type? == "Microsoft.ApiManagement/service") |
+      select(.properties.virtualNetworkType == "External" and
+             .properties.virtualNetworkConfiguration.subnetResourceId != null)] | length == 1) and
+    ([.. | objects | select(.type? == "Microsoft.Network/virtualNetworks/subnets") |
+      select((.properties.delegations | not) and .properties.networkSecurityGroup.id != null)] | length == 1) and
+    ([.. | objects | select(.type? == "Microsoft.ApiManagement/service/apis") |
+      select(.properties.displayName == "Foundry Chat Completions" and
+             .properties.path == "openai/v1" and .properties.subscriptionRequired == false)] | length == 1) and
+    ([.. | objects | select(.type? == "Microsoft.ApiManagement/service/apis/policies")] | length == 0) and
+    ([.. | objects | select(.type? == "Microsoft.Authorization/roleAssignments") |
+      select(.properties.principalType == "ServicePrincipal" and
+             (.properties.roleDefinitionId | contains("5e0bd9bd-7b93-4f28-af87-19fc36ad61bd")))] | length == 1)
+  ' <<<"$template" >/dev/null || fail '00c API Management Developer gateway contract'
+  jq -e '
+    ([.. | objects | select(.type? == "Microsoft.ApiManagement/service/apis/policies") |
+      select(.properties.value | contains("validate-azure-ad-token") and
+             contains("authentication-managed-identity") and
+             contains("ALLOWED_PRINCIPAL_IDS_PLACEHOLDER") | not)] | length == 1)
+  ' <<<"$policy_template" >/dev/null || fail '00c separate API Management policy contract'
+  pass '00c API Management policy contract'
 }
 
 run_live() {
@@ -292,6 +356,36 @@ run_live() {
         outbound_target=$(az rest --method get --url "https://management.azure.com${managed_network_id}?api-version=2026-05-15-preview" \
           --query properties.managedNetwork.outboundRules.foundry.destination.serviceResourceId -o tsv)
         assert_value 'Core managed private endpoint target' "$account_id" "$outbound_target"
+      else
+        local apim_id apim_name apim_principal apim_subnet_id apim_state apim_sku apim_network_type
+        apim_id=$(get_env_value AZURE_APIM_ID)
+        apim_name=$(get_env_value AZURE_APIM_NAME)
+        apim_principal=$(get_env_value AZURE_APIM_PRINCIPAL_ID)
+        apim_subnet_id=$(get_env_value AZURE_APIM_SUBNET_ID)
+        [[ -n "$apim_id" && -n "$apim_name" && -n "$apim_principal" && -n "$apim_subnet_id" ]] \
+          || fail '00c API Management outputs are missing'
+        apim_state=$(az rest --method get --url "https://management.azure.com${apim_id}?api-version=2024-05-01" \
+          --query properties.provisioningState -o tsv)
+        apim_sku=$(az rest --method get --url "https://management.azure.com${apim_id}?api-version=2024-05-01" \
+          --query sku.name -o tsv)
+        apim_network_type=$(az rest --method get --url "https://management.azure.com${apim_id}?api-version=2024-05-01" \
+          --query properties.virtualNetworkType -o tsv)
+        assert_value '00c API Management provisioning state' 'Succeeded' "$apim_state"
+        assert_value '00c API Management SKU' 'Developer' "$apim_sku"
+        assert_value '00c API Management network mode' 'External' "$apim_network_type"
+        local apim_delegation apim_nsg apim_role chat_api
+        apim_delegation=$(az network vnet subnet show --ids "$apim_subnet_id" --query 'length(delegations)' -o tsv)
+        apim_nsg=$(az network vnet subnet show --ids "$apim_subnet_id" --query networkSecurityGroup.id -o tsv)
+        apim_role=$(az role assignment list --scope "$account_id" --assignee "$apim_principal" \
+          --query "[?roleDefinitionName=='Cognitive Services OpenAI User'] | length(@)" -o tsv)
+        chat_api=$(az rest --method get --url "https://management.azure.com${apim_id}/apis/foundry-chat-completions?api-version=2024-05-01" \
+          --query properties.path -o tsv)
+        assert_value '00c API Management subnet delegations' '0' "$apim_delegation"
+        [[ -n "$apim_nsg" ]] || fail '00c API Management subnet is missing its NSG'
+        pass '00c API Management subnet NSG'
+        [[ "$apim_role" -ge 1 ]] || fail '00c API Management is missing Cognitive Services OpenAI User'
+        pass '00c API Management backend RBAC'
+        assert_value '00c API Management Chat API' 'openai/v1' "$chat_api"
       fi
       ;;
     02a|03a|04a|05a)
