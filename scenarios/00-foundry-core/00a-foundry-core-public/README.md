@@ -97,7 +97,3 @@ Evaluation. For an existing deployment, verify the caller already has the
 project role (possibly inherited), or reprovision this lane to apply it. It
 does not create an Azure application resource, but each evaluation creates a
 run in the Foundry project.
-
-Read the [Foundry Core article](../../../articles/published/episode-00a-foundry-core.md) for the architectural
-foundation and [the Chat Completions article](../../../articles/published/episode-00a-chat-completions.md) for
-the authenticated application flow.

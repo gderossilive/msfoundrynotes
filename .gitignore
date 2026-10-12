@@ -3,6 +3,9 @@
 # Instance memory (never commit)
 memory.md
 
+# Editorial content is published only on LinkedIn.
+articles/
+
 # Local deployment configuration
 .env
 .env.*

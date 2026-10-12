@@ -30,8 +30,8 @@ hosting, business-data access, VPN, ExpressRoute, or a production gateway tier.
 - Lane 00c static checks validate private networking, the APIM deployment, and
   the separately applied gateway policy.
 - The Python Chat Completions and benchmark tests use mocks and do not call Azure.
-- Live results described in the articles were observed on 2026-10-01 and
-  2026-10-02; reproduce the checks in your own subscription.
+- Live validation was observed on 2026-10-01 and 2026-10-02; reproduce the
+  checks in your own subscription.
 
 Use the [repository guide](../../README.md) for setup, the
 [testing guide](../../docs/testing.md) for validation, and the

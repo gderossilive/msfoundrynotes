@@ -1,19 +1,8 @@
 # Microsoft Foundry Notes
 
-Independently deployable learning scenarios for **Microsoft Foundry (new)**,
-with the technical packages and article sources used by the Microsoft Foundry
-Notes series.
-
-## Publication schedule
-
-| Date | Article | Technical release |
-| --- | --- | --- |
-| 2026-10-13 | [Private by Design, Reachable by Gateway](articles/episode-00c-foundry-core-byo-vnet.md) | `episode-00c-foundry-core-byo-vnet-v1.0.0` |
-| 2026-10-15 | [00c Chat Completions — One Blocked Call, One Policy, One Response](articles/episode-00c-chat-completions.md) | `episode-00c-chat-completions-v1.0.0` |
-| 2026-10-17 | [00a Model Benchmark — Valid JSON, Wrong Priority](articles/episode-00a-model-benchmark.md) | `episode-00a-model-benchmark-v1.0.0` |
-
-See the [article index](articles/README.md) for the complete published sequence
-and LinkedIn image guidance.
+Independently deployable learning scenarios for **Microsoft Foundry (new)**.
+Editorial content is published only on LinkedIn and is not stored in this
+repository.
 
 ## Included scenarios
 
@@ -108,7 +97,6 @@ Management Developer instance that remains billable until deleted.
 ## Layout
 
 ```text
-articles/                       Article sources and publication images
 scenarios/00-foundry-core/      Level 00 lanes and shared Python application
 modules/                        Shared Foundry, network, and gateway modules
 scripts/                        Bootstrap, policy, metadata, and test helpers
@@ -116,8 +104,8 @@ docs/testing.md                 Static, live, and inference guidance
 ```
 
 Technical names containing `FoundryLab` are retained to preserve the deployment
-and test contracts. Local environment state, private memory, credentials, and
-the source repository history are excluded.
+and test contracts. Local environment state, private memory, credentials,
+editorial content, and the source repository history are excluded.
 
 ## License
 
