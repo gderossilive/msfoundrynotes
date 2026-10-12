@@ -4,6 +4,12 @@ Run the local checks before provisioning. Live checks and inference require a
 separately authorized Azure deployment and can incur costs. The current package
 contains the 00a public lane and the independent 00c BYO VNet lane.
 
+These technical packages support three LinkedIn articles: the 00c private
+network design, its Chat Completions gateway companion, and the 00a model
+benchmark. Article text and publication images are intentionally outside this
+repository; this document validates the reproducible code and infrastructure
+only.
+
 ## Local static checks
 
 From the repository root:

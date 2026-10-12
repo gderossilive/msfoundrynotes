@@ -77,6 +77,10 @@ are the expected answers. The command uses the same Azure CLI identity and model
 as the Chat Completions sample, plus the Microsoft Foundry project's cloud evaluation API.
 No custom evaluator or hosted application is deployed.
 
+This benchmark is the reproducible technical companion for the LinkedIn article
+**00a Model Benchmark — Valid JSON, Wrong Priority**. The article and its
+publication assets are not stored in this repository.
+
 Scenario 00a deployments from this release assign the Azure CLI deployer
 **Foundry User** on the project, in addition to **Cognitive Services OpenAI User**
 on the account. For an existing deployment, check that the caller already has
