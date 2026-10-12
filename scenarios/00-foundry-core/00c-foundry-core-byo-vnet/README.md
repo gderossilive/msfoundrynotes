@@ -11,6 +11,8 @@ inside the VNet with its own managed identity.
 Here, BYO means customer-managed networking: the template creates the VNet in
 your subscription. It does not consume another scenario's deployment or an
 existing VNet. Address prefixes can be customized in `infra/main.bicepparam`.
+For a resource-by-resource walkthrough of the reusable private foundation, see
+[Private Microsoft Foundry scenario](../../../modules/core/private-foundry-scenario/main.md).
 
 The initial deployment creates the API, backend, managed identity, and backend
 role assignment, but deliberately does not attach its forwarding policy. Apply
