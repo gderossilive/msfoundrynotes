@@ -79,7 +79,8 @@ No custom evaluator or hosted application is deployed.
 
 This benchmark is the reproducible technical companion for the LinkedIn article
 **00a Model Benchmark — Valid JSON, Wrong Priority**. The article and its
-publication assets are not stored in this repository.
+publication assets are not stored in this repository; publish the article only
+through LinkedIn.
 
 Scenario 00a deployments from this release assign the Azure CLI deployer
 **Foundry User** on the project, in addition to **Cognitive Services OpenAI User**

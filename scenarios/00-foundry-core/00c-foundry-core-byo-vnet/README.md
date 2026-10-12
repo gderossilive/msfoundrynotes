@@ -82,8 +82,8 @@ subnet, and Chat Completions endpoint.
 
 7. Run the same shared app with `--scenario 00c --target gateway`. APIM validates
    the caller token and allowlist, acquires its own backend token, and sends the
-   request through the VNet to Foundry. See the app README and Episode 00c Chat
-   Completions article for the full command sequence.
+   request through the VNet to Foundry. See the app README and the LinkedIn
+   companion article for the full command sequence.
 
 Static validation is available through [the lane tests](test/README.md).
 

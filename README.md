@@ -16,18 +16,21 @@ agent, retrieval system, business-data source, VPN, or Bastion host is included.
 
 ## LinkedIn publication packages
 
-The repository contains the reproducible technical material for three articles
-scheduled this week. Article text, covers, diagrams, and LinkedIn post copy are
-intentionally excluded from Git and are published only through LinkedIn.
+The repository at commit
+[`a11fb20`](https://github.com/gderossilive/msfoundrynotes/commit/a11fb200a230f833c971797def940bff6aa40788)
+contains the reproducible technical material for three articles scheduled this
+week. Article text, covers, diagrams, and LinkedIn post copy are intentionally
+excluded from Git and are published only through LinkedIn.
 
-| Article | Technical material in this repository |
+| LinkedIn date | Article | Technical material in this repository |
 | --- | --- |
-| Private by Design, Reachable by Gateway | Lane 00c, private endpoint, private DNS, API Management Developer, and static/live verification |
-| 00c Chat Completions — One Blocked Call, One Policy, One Response | Shared Python client, direct negative test, separate APIM policy, and gateway path |
-| 00a Model Benchmark — Valid JSON, Wrong Priority | Lane 00a `gpt-4.1-mini`, ten synthetic labeled documents, strict JSON output, and native Foundry Evaluation graders |
+| 2026-10-13 | Private by Design, Reachable by Gateway | Lane 00c, private endpoint, private DNS, API Management Developer, and static/live verification |
+| 2026-10-15 | 00c Chat Completions — One Blocked Call, One Policy, One Response | Shared Python client, direct negative test, separate APIM policy, and gateway path |
+| 2026-10-17 | 00a Model Benchmark — Valid JSON, Wrong Priority | Lane 00a `gpt-4.1-mini`, ten synthetic labeled documents, strict JSON output, and native Foundry Evaluation graders |
 
 The public repository is the technical companion for the LinkedIn articles:
-use the lane READMEs and the application guide for reproduction. Do not add an
+use the lane READMEs and the application guide for reproduction. The article text is published on LinkedIn
+on the dates above; this repository is its technical companion. Do not add an
 `articles/` directory or editorial assets here; the root `.gitignore` protects
 that boundary.
 
