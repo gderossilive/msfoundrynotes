@@ -64,7 +64,11 @@ directory with `azd env list`.
 The unit tests mock azd, identity, and model access; they do not call Azure:
 
 ```bash
-python -m unittest -v test_chat_completions.py test_benchmark_documents.py
+python -m unittest -v \
+  test_chat_completions.py \
+  test_benchmark_documents.py \
+  test_prepare_finetuning_data.py \
+  test_fine_tune_documents.py
 ```
 
 ## Document classification benchmark (00a)
@@ -83,10 +87,13 @@ publication assets are not stored in this repository; publish the article only
 through LinkedIn.
 
 Scenario 00a deployments from this release assign the Azure CLI deployer
-**Foundry User** on the project, in addition to **Cognitive Services OpenAI User**
-on the account. For an existing deployment, check that the caller already has
-Foundry User on the project (directly or inherited); otherwise reprovision with
-role-assignment permissions and wait for propagation. The earlier Foundry Core
+**Foundry Owner** on the project for both evaluations and custom checkpoint
+deployment, in addition to **Cognitive Services OpenAI User** on the account.
+The benchmark alone still needs only Foundry User on the project (directly or
+inherited); the broader Owner role is required for the fine-tuning workflow
+below. For an existing deployment, verify the role required by your workflow,
+or reprovision with role-assignment permissions and wait for propagation.
+Reprovisioning does not remove earlier role assignments. The earlier Foundry Core
 v1.0.0 release does not include this change. With an authorized 00a azd
 environment, run from this directory:
 
@@ -128,3 +135,128 @@ separate ignored report is `benchmark-foundry-gpt-4.1-mini-results.json`.
 The 10-point difference on department and all-fields is one document each;
 this tiny, variable sample cannot establish that the new model is better.
 Keep these ten documents out of fine-tuning data for the before/after comparison.
+
+## Document classification fine-tuning (00a)
+
+This is the technical companion for the LinkedIn article **00a Fine-Tuning --
+60% to 100%, Still Not Production**. Article text and publication images remain
+outside this repository.
+
+The fine-tuning companion uses the tracked
+[100-document synthetic source](../data/business_documents_100.json). It verifies
+that the first ten records exactly match the held-out benchmark, excludes them,
+and deterministically splits the remaining 90 records into:
+
+- 78 supervised training examples.
+- 12 validation examples, with two examples for each of the six document types.
+- 10 unchanged held-out benchmark examples, used only after checkpoint selection.
+
+The generated JSONL files reproduce the benchmark's system prompt, document input,
+and strict three-field JSON answer. They are UTF-8 with a byte-order mark, as
+required by the Foundry fine-tuning service. Generated datasets, state, and local
+reports are gitignored; the tracked source and scripts are the reproducible inputs.
+The synthetic source is learning material, not customer data or a representative
+production dataset.
+
+The workflow uses `gpt-4.1-mini` version `2025-04-14`, supervised fine-tuning,
+Developer training, three epochs, seed 41, and a learning-rate multiplier of 0.5.
+Developer training has no completion-time SLA and no data-residency guarantee.
+The lane grants the Azure CLI deployer **Foundry Owner** on the project because
+Foundry User can train but cannot deploy the resulting model. Account-level
+inference still uses **Cognitive Services OpenAI User**.
+
+Use the same Python environment, installed requirements, and Azure CLI sign-in
+as the benchmark. Before submitting a job, confirm that the target region,
+account, model version, training tier, checkpoint SKU, and quota support this
+experiment. The fine-tuning job API is the explicitly pinned
+`2025-05-15-preview` contract; service availability and API compatibility can
+change independently of this source snapshot.
+
+Prepare and validate the datasets locally, without calling Azure:
+
+```bash
+python fine_tune_documents.py prepare
+```
+
+Preparation fails unless the source/held-out relationship, counts, class balance,
+uniqueness, and split isolation pass validation. The local tests also verify the
+generated message contract and BOM encoding.
+
+Immediately before training, record a fresh base-model baseline:
+
+```bash
+python benchmark_documents.py \
+  --environment <00a-azd-environment-name> \
+  --output fine-tuning-baseline-results.json
+```
+
+Submit and monitor the job. Later stages use the local state file to continue
+the same experiment, and submission refuses a state file with an existing job ID:
+
+```bash
+python fine_tune_documents.py submit --environment <00a-azd-environment-name>
+python fine_tune_documents.py monitor
+```
+
+Keep the state file private and do not run concurrent submissions. If submission
+fails or times out, inspect the state and the Foundry project's jobs and uploaded
+files before retrying. A remote operation can succeed before its response or
+local state is saved; a missing local job ID does not prove that no billable job
+was created.
+
+After the job succeeds, deploy and evaluate each checkpoint on the 12 validation
+examples. The command chooses the highest all-fields accuracy, breaking ties by
+priority accuracy, coverage, and then lower validation loss. It creates the stable
+`gpt-4.1-mini-docs-ft` deployment and deletes only the temporary checkpoint
+deployments recorded in its state:
+
+```bash
+python fine_tune_documents.py evaluate-checkpoints \
+  --deployment-name gpt-4.1-mini-docs-ft \
+  --sku-name GlobalStandard \
+  --capacity 10
+```
+
+Use a deployment name reserved for this experiment, not an existing unrelated
+deployment. Finally, evaluate the selected checkpoint once on the held-out
+ten-document benchmark:
+
+```bash
+python fine_tune_documents.py final-test
+```
+
+### Recorded experiment and limits
+
+The live 2026-10-02 run selected the step-234 checkpoint. Validation all-fields
+accuracy was 91.7%, 100%, and 100% for steps 78, 156, and 234; the lower full
+validation loss broke the final tie. On the unchanged held-out benchmark:
+
+| Metric | Base gpt-4.1-mini | Selected fine-tuned checkpoint |
+| --- | ---: | ---: |
+| Coverage | 10/10 | 10/10 |
+| Document type | 10/10 | 10/10 |
+| Department | 10/10 | 10/10 |
+| Priority | 6/10 | 10/10 |
+| All three fields | 6/10 | 10/10 |
+
+These are historical results, not a new run performed for this publication.
+This ten-document synthetic test is an experiment, not a production accuracy
+estimate. Do not repeatedly select checkpoints against the held-out test.
+Ambiguous documents, unseen classes, multilingual variation, latency, and
+inference cost require separate evidence.
+
+### State, costs, and cleanup
+
+The job, uploaded files, custom model, and selected deployment remain in Foundry
+for later experiments. Training, deployment, model calls, and Foundry Evaluation
+can incur charges, and the fine-tuned deployment consumes quota until removed.
+Local state and reports contain remote resource identifiers and are deliberately
+excluded from Git, together with the generated training/validation files.
+
+After a failed checkpoint evaluation, inspect `temporary_deployments` in the
+private state file: temporary deployments may still need cleanup. Delete only
+the exact experiment deployments, jobs, models, and files after confirming the
+account and IDs; do not delete the base deployment or unrelated resources.
+Cancel any active training job before discarding its state. For a disposable
+lane, follow the [lane cleanup instructions](../00a-foundry-core-public/README.md#deploy)
+to remove its entire resource group after confirming the target.

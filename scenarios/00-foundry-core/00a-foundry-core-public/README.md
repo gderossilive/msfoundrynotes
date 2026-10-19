@@ -8,7 +8,7 @@ smallest independent foundation in Microsoft Foundry Notes.
 - Permission to create a resource group and its resources: bootstrap creates the lane
   resource group if it does not exist.
 - Azure CLI authenticated as the human user who will invoke the model.
-- Permission to assign roles: provisioning grants that user the inference and evaluation roles.
+- Permission to assign roles: provisioning grants that user the inference and fine-tuning roles.
 - Model quota for the selected model, SKU, capacity, and region.
 - Azure CLI, Azure Developer CLI, Bicep CLI, Bash, Git and `jq`.
 
@@ -54,7 +54,13 @@ This lane deploys only the minimum Microsoft Foundry foundation in the target re
 - One Azure OpenAI model deployment (`Microsoft.CognitiveServices/accounts/deployments`).
 - System-assigned managed identities for the Foundry account and project.
 - An account-scoped `Cognitive Services OpenAI User` assignment for the human Azure CLI deployer.
-- A project-scoped `Foundry User` assignment for that deployer to run cloud evaluations.
+- A project-scoped `Foundry Owner` assignment for that deployer to run cloud evaluations,
+  fine-tune the model, and deploy the resulting checkpoint.
+
+Foundry Owner is broader than the benchmark-only Foundry User role in earlier
+versions. Review this project-scoped permission before provisioning. Existing
+deployments need this role (directly or inherited) for checkpoint deployment;
+reprovisioning adds it but does not remove earlier role assignments.
 
 The account is configured with public network access and local authentication disabled, so callers use
 Microsoft Entra ID rather than account keys. Bootstrap binds the signed-in user's object ID to the azd
@@ -97,3 +103,11 @@ Evaluation. For an existing deployment, verify the caller already has the
 project role (possibly inherited), or reprovision this lane to apply it. It
 does not create an Azure application resource, but each evaluation creates a
 run in the Foundry project.
+
+To continue the benchmark with supervised fine-tuning, use the
+[document fine-tuning workflow](../app/README.md#document-classification-fine-tuning-00a).
+It keeps the ten benchmark documents out of training, submits a Developer-tier
+job, evaluates three checkpoints, and retains the selected fine-tuned deployment.
+Training, checkpoint deployments, inference, and evaluations are separate,
+explicit commands and can incur charges. No fine-tuning job is created by
+provisioning this lane.

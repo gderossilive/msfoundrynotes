@@ -8,7 +8,7 @@ repository.
 
 | Lane | Configuration | Primary purpose |
 | --- | --- | --- |
-| [00a Public](scenarios/00-foundry-core/00a-foundry-core-public/README.md) | Public Foundry endpoint with Entra ID authentication | Chat Completions and the ten-document model benchmark |
+| [00a Public](scenarios/00-foundry-core/00a-foundry-core-public/README.md) | Public Foundry endpoint with Entra ID authentication | Chat Completions, the ten-document model benchmark, and supervised fine-tuning |
 | [00c BYO VNet](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md) | Private Foundry endpoint in a customer-managed VNet, reached through API Management Developer | Private networking and gateway validation |
 
 Each lane provisions its own resources and can be deployed independently. No
@@ -18,8 +18,8 @@ agent, retrieval system, business-data source, VPN, or Bastion host is included.
 
 The repository at commit
 [`a11fb20`](https://github.com/gderossilive/msfoundrynotes/commit/a11fb200a230f833c971797def940bff6aa40788)
-contains the reproducible technical material for three articles scheduled this
-week. Article text, covers, diagrams, and LinkedIn post copy are intentionally
+contains the reproducible technical material for three articles planned for
+October 13-17, 2026. Article text, covers, diagrams, and LinkedIn post copy are intentionally
 excluded from Git and are published only through LinkedIn.
 
 | LinkedIn date | Article | Technical material in this repository |
@@ -33,6 +33,22 @@ use the lane READMEs and the application guide for reproduction. The article tex
 on the dates above; this repository is its technical companion. Do not add an
 `articles/` directory or editorial assets here; the root `.gitignore` protects
 that boundary.
+
+### 00a Fine-Tuning companion
+
+The current source also includes the technical companion for **00a Fine-Tuning
+-- 60% to 100%, Still Not Production**. Its LinkedIn publication date is not
+yet scheduled. The [fine-tuning guide](scenarios/00-foundry-core/app/README.md#document-classification-fine-tuning-00a)
+covers the synthetic 100-document source, deterministic 78/12/10 split,
+Developer-tier supervised training, validation-based checkpoint selection, and
+the held-out comparison.
+
+New 00a provisioning grants the human deployer **Foundry Owner at project
+scope** to deploy the custom checkpoints, while retaining **Cognitive Services
+OpenAI User at account scope** for inference. This is broader than the earlier
+benchmark-only Foundry User project role; review it before provisioning.
+Training and checkpoint deployments require separate execution and can incur
+charges. No training runs automatically as part of provisioning or local tests.
 
 ## Prerequisites
 
@@ -94,12 +110,16 @@ unit tests mock Azure access:
 
 ```bash
 cd scenarios/00-foundry-core/app
-python -m unittest -v test_chat_completions.py test_benchmark_documents.py
+python -m unittest -v \
+  test_chat_completions.py \
+  test_benchmark_documents.py \
+  test_prepare_finetuning_data.py \
+  test_fine_tune_documents.py
 ```
 
 See [Testing and inference](docs/testing.md) for live checks and the
 [application guide](scenarios/00-foundry-core/app/README.md) for Chat
-Completions and the document benchmark.
+Completions, the document benchmark, and supervised fine-tuning.
 
 ## Cleanup
 

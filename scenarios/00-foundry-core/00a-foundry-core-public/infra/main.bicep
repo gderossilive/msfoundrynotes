@@ -73,8 +73,8 @@ resource deployerOpenAiUser 'Microsoft.Authorization/roleAssignments@2022-04-01'
   }
 }
 
-resource deployerFoundryUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(foundryProjectResource.id, deployerPrincipalId, 'Foundry User')
+resource deployerFoundryOwner 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(foundryProjectResource.id, deployerPrincipalId, 'Foundry Owner')
   scope: foundryProjectResource
   dependsOn: [
     foundryProject
@@ -82,7 +82,7 @@ resource deployerFoundryUser 'Microsoft.Authorization/roleAssignments@2022-04-01
   properties: {
     principalId: deployerPrincipalId
     principalType: 'User'
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'c883944f-8b7b-4483-af10-35834be79c4a')
   }
 }
 

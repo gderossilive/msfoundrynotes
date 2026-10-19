@@ -4,12 +4,13 @@ Run the local checks before provisioning. Live checks and inference require a
 separately authorized Azure deployment and can incur costs. The current package
 contains the 00a public lane and the independent 00c BYO VNet lane.
 
-These technical packages support three LinkedIn articles: the 00c private
+These technical packages support the 00c private
 network design, its Chat Completions gateway companion, and the 00a model
-benchmark. Article text and publication images are intentionally outside this
+benchmark, plus the 00a Fine-Tuning follow-up. Article text and publication images are intentionally outside this
 repository; this document validates the reproducible code and infrastructure
 only. The planned LinkedIn publication dates are 2026-10-13, 2026-10-15, and
-2026-10-17, respectively.
+2026-10-17 for the first three articles, respectively; Fine-Tuning has no
+scheduled LinkedIn date.
 
 ## Local static checks
 
@@ -23,6 +24,25 @@ The runner checks bootstrap and scenario metadata with mocked Azure commands,
 then compiles both lanes and validates their scenario contracts, including the
 separately applied 00c gateway policy. It does
 not call Azure provisioning APIs. Core has no scenario-local blog requirement.
+
+The 00a static suite also runs the four Python unit-test modules with Azure
+access mocked, including deterministic fine-tuning preparation and job contracts.
+To run only those tests from `scenarios/00-foundry-core/app`:
+
+```bash
+python -m unittest -v \
+  test_chat_completions.py \
+  test_benchmark_documents.py \
+  test_prepare_finetuning_data.py \
+  test_fine_tune_documents.py
+```
+
+`python fine_tune_documents.py prepare` is also local-only. It generates ignored
+78-example training and 12-example validation JSONL files, leaving the ten
+benchmark documents held out. The tests verify the split, message contract,
+encoding, duplicate-submission guard, and checkpoint ranking. They do not prove
+current model availability, live API compatibility, training success, deployment
+readiness, or production accuracy.
 
 Compile the parameter files as well, using either their defaults or explicitly
 exported non-secret model settings:
@@ -73,13 +93,26 @@ An administrator with role-assignment permission must grant access if it is not
 already present. Assign it to the actual caller, not automatically to the project
 identity. Allow time for role propagation.
 
-Lane 00a grants its signed-in human deployer the account inference role and the
-project role required by Microsoft Foundry Evaluation. Lane 00c grants the
+Lane 00a grants its signed-in human deployer the account inference role and
+project-scoped **Foundry Owner**, required by this companion to deploy fine-tuned
+checkpoints. Earlier benchmark-only sources granted **Foundry User** on the
+project; that remains sufficient for the benchmark, but not checkpoint
+deployment. Existing deployments must be checked for the workflow's required
+role. Lane 00c grants the
 backend inference role to the gateway identity; callers are authorized by its
 separately applied policy. `az rest` uses the current Azure CLI identity and
 obtains its token internally; do not extract, print, paste or persist bearer
 tokens. Do not enable shell tracing (`set -x`) or CLI debug logging for
 authentication and inference commands.
+
+## Fine-tuning live workflow
+
+The [fine-tuning guide](../scenarios/00-foundry-core/app/README.md#document-classification-fine-tuning-00a)
+documents the separately executed baseline, submission, monitoring, checkpoint
+validation, final held-out test, and cleanup. None is run by local static tests
+or lane provisioning. Obtain approval for training, deployment, inference, and
+evaluation costs before executing these commands. Keep job state and reports
+out of Git and verify remote jobs before retrying a failed submission.
 
 ## Manual keyless inference
 

@@ -157,10 +157,10 @@ check_core_public_static() {
   jq -e '
     ([.resources[] | select(.type == "Microsoft.Authorization/roleAssignments") |
       select(.properties.principalType == "User" and
-             (.properties.roleDefinitionId | contains("53ca6127-db72-4b80-b1b0-d745d6d5456d")) and
+             (.properties.roleDefinitionId | contains("c883944f-8b7b-4483-af10-35834be79c4a")) and
              (.scope | contains("Microsoft.CognitiveServices/accounts/projects")))] | length == 1)
-  ' <<<"$template" >/dev/null || fail '00a deployer Foundry evaluation role contract'
-  pass '00a deployer Foundry evaluation role contract'
+  ' <<<"$template" >/dev/null || fail '00a deployer Foundry fine-tuning role contract'
+  pass '00a deployer Foundry fine-tuning role contract'
 }
 
 check_core_private_static() {

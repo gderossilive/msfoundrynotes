@@ -28,6 +28,10 @@ htmlcov/
 scenarios/00-foundry-core/app/benchmark-results.json
 scenarios/00-foundry-core/app/benchmark-foundry-results.json
 scenarios/00-foundry-core/app/benchmark-foundry-gpt-4.1-mini-results.json
+scenarios/00-foundry-core/app/data/fine-tuning/
+scenarios/00-foundry-core/app/fine-tuning-state.json
+scenarios/00-foundry-core/app/fine-tuning-final-results.json
+scenarios/00-foundry-core/app/fine-tuning-baseline-results.json
 
 # Build and editor output
 dist/
