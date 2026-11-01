@@ -6,8 +6,9 @@ message. It does not deploy an application, store conversation state, or support
 
 The same directory holds the 00a document benchmark and fine-tuning clients. Each
 script has a step-by-step walkthrough in Italian:
-[`chat_completions.py`](chat_completions-explained.md) and
-[`benchmark_documents.py`](benchmark_documents-explained.md).
+[`chat_completions.py`](chat_completions-explained.md),
+[`benchmark_documents.py`](benchmark_documents-explained.md), and the fine-tuning
+scripts [`prepare_finetuning_data.py` and `fine_tune_documents.py`](fine_tune_documents-explained.md).
 
 ## Prerequisites
 
@@ -147,9 +148,10 @@ Keep these ten documents out of fine-tuning data for the before/after comparison
 
 ## Document classification fine-tuning (00a)
 
-This is the technical companion for the LinkedIn article **00a Fine-Tuning --
-60% to 100%, Still Not Production**. Article text and publication images remain
-outside this repository.
+This is the technical companion for the **00a Fine-Tuning -- 60% to 100%, Still
+Not Production** episode. Article text and publication images remain outside this
+repository. For a step-by-step explanation of the scripts (in Italian), see
+[How the fine-tuning scripts work](fine_tune_documents-explained.md).
 
 The fine-tuning companion uses the tracked
 [100-document synthetic source](../data/business_documents_100.json). It verifies
