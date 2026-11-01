@@ -4,13 +4,12 @@ Run the local checks before provisioning. Live checks and inference require a
 separately authorized Azure deployment and can incur costs. The current package
 contains the 00a public lane and the independent 00c BYO VNet lane.
 
-These technical packages support the 00c private
-network design, its Chat Completions gateway companion, and the 00a model
-benchmark, plus the 00a Fine-Tuning follow-up. Article text and publication images are intentionally outside this
+These technical packages support the Microsoft Foundry Notes episodes listed in
+the [repository README](../README.md#published-episodes): the 00a and 00c Foundry
+Core foundations, both Chat Completions companions, and the 00a model benchmark,
+plus the 00a Fine-Tuning follow-up, which has no scheduled LinkedIn article. Article text and publication images are intentionally outside this
 repository; this document validates the reproducible code and infrastructure
-only. The planned LinkedIn publication dates are 2026-10-13, 2026-10-15, and
-2026-10-17 for the first three articles, respectively; Fine-Tuning has no
-scheduled LinkedIn date.
+only.
 
 ## Local static checks
 

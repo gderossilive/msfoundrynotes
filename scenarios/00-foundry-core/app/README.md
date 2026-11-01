@@ -4,6 +4,11 @@ This directory contains the shared level 00 Python sample. It sends one prompt t
 deployed by `00a-foundry-core-public` or `00c-foundry-core-byo-vnet` and prints the first returned
 message. It does not deploy an application, store conversation state, or support API keys.
 
+The same directory holds the 00a document benchmark and fine-tuning clients. Each
+script has a step-by-step walkthrough in Italian:
+[`chat_completions.py`](chat_completions-explained.md) and
+[`benchmark_documents.py`](benchmark_documents-explained.md).
+
 ## Prerequisites
 
 1. Bootstrap and provision scenario `00a` or `00c`.
@@ -85,10 +90,12 @@ For a step-by-step explanation of the script (in Italian), see
 
 This benchmark is the reproducible technical companion for the LinkedIn article
 **00a Model Benchmark — Valid JSON, Wrong Priority**. The article and its
-publication assets are not stored in this repository; publish the article only
-through LinkedIn.
+publication assets are not stored in this repository. To reproduce its exact
+results, use the
+[`episode-00a-model-benchmark-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00a-model-benchmark-v1.0.0)
+release; `main` also includes the later fine-tuning changes.
 
-Scenario 00a deployments from this release assign the Azure CLI deployer
+Current 00a provisioning assigns the Azure CLI deployer
 **Foundry Owner** on the project for both evaluations and custom checkpoint
 deployment, in addition to **Cognitive Services OpenAI User** on the account.
 The benchmark alone still needs only Foundry User on the project (directly or

@@ -1,7 +1,9 @@
 # Level 00, lane 00a: Foundry Core public
 
 This lane creates a Microsoft Foundry account, a project, and one model deployment. It is the
-smallest independent foundation in Microsoft Foundry Notes.
+smallest independent foundation in Microsoft Foundry Notes. To read its template step by step, see the
+[Bicep learning guide](infra/main.md). The episodes that use this lane are listed in the
+[repository README](../../../README.md#published-episodes).
 
 ## Prerequisites
 

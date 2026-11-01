@@ -105,6 +105,11 @@ cd "scenarios/$lane"
 azd provision --environment "$AZURE_ENV_NAME"
 ```
 
+Lane 00a bootstrap pins its own model, `gpt-4.1-mini` (`2025-04-14`), regardless of
+the model values in `.env`; SKU and capacity still come from `.env`. Lane 00c uses
+the `.env` model values. After provisioning lane 00c, its API Management policy is
+applied as a separate step: follow the [lane README](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md#verify).
+
 Bootstrap binds the azd environment to one lane and creates or selects its
 resource group. It applies the lab tag `SecurityControl=Ignore`; this is not an
 Azure Policy exemption and must be reviewed with the policy owner.
@@ -151,6 +156,11 @@ Management Developer instance that remains billable until deleted.
 
 ```text
 scenarios/00-foundry-core/      Level 00 lanes and shared Python application
+  00a-foundry-core-public/      Public lane, with a Bicep learning guide in infra/main.md
+  00c-foundry-core-byo-vnet/    Private lane with API Management gateway
+  app/                          Chat Completions, benchmark, and fine-tuning clients,
+                                with script walkthroughs (*-explained.md)
+  data/                         Synthetic 100-document source
 modules/                        Shared Foundry, network, and gateway modules
 scripts/                        Bootstrap, policy, metadata, and test helpers
 docs/testing.md                 Static, live, and inference guidance

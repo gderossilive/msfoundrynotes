@@ -424,7 +424,9 @@ without consequences:
   name in the current module.
 - Changing `modelVersion` or capacity requires Azure to support the
   update and sufficient quota to be available.
-- Changing the user or role produces a different assignment GUID.
+- Changing the user or role produces a different assignment GUID. Moving an
+  existing deployment from Foundry User to Foundry Owner adds the new
+  assignment but does not remove the old one.
 
 A normal incremental ARM deployment does not automatically delete an old
 resource or assignment simply because it no longer appears in the template.
