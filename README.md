@@ -48,21 +48,13 @@ Versions pinned before the fine-tuning release predate the broader project role
 described below. Do not add an `articles/` directory or editorial assets here; the root
 `.gitignore` protects that boundary.
 
-### 00a Fine-Tuning companion
-
-The technical companion for **00a Fine-Tuning -- 60% to 100%, Still Not
-Production** is listed in the table above; its LinkedIn article is not yet
-published. The [fine-tuning guide](scenarios/00-foundry-core/app/README.md#document-classification-fine-tuning-00a)
-covers the synthetic 100-document source, deterministic 78/12/10 split,
-Developer-tier supervised training, validation-based checkpoint selection, and
-the held-out comparison.
-
-New 00a provisioning grants the human deployer **Foundry Owner at project
-scope** to deploy the custom checkpoints, while retaining **Cognitive Services
-OpenAI User at account scope** for inference. This is broader than the earlier
-benchmark-only Foundry User project role; review it before provisioning.
-Training and checkpoint deployments require separate execution and can incur
-charges. No training runs automatically as part of provisioning or local tests.
+**Lane 00a permissions and costs.** Current 00a provisioning grants the human
+deployer **Foundry Owner at project scope**, needed to deploy fine-tuned
+checkpoints, and **Cognitive Services OpenAI User at account scope** for
+inference. This is broader than the earlier benchmark-only Foundry User role;
+review it before provisioning. Fine-tuning, checkpoint deployments, and
+evaluations are separate explicit commands and can incur charges. Nothing is
+trained by provisioning or by the local tests.
 
 ## Prerequisites
 
