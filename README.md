@@ -6,6 +6,11 @@ repository.
 
 ## Included scenarios
 
+A **scenario** (or **lane**) is the infrastructure you deploy: a Bicep template,
+a bootstrap step and tests that provision one Foundry configuration. This
+repository contains two lanes, and each can be deployed on its own. Deploy
+exactly one to follow the repository; the lane's README is the entry point.
+
 | Lane | Configuration | Primary purpose |
 | --- | --- | --- |
 | [00a Public](scenarios/00-foundry-core/00a-foundry-core-public/README.md) | Public Foundry endpoint with Entra ID authentication | Chat Completions, the ten-document model benchmark, and supervised fine-tuning |
@@ -13,11 +18,20 @@ repository.
 
 Each lane provisions its own resources and can be deployed independently. No
 agent, retrieval system, business-data source, VPN, or Bastion host is included.
+The lanes are listed above once; the episodes below build on them.
 
 ## Published episodes
 
-Each episode article is published only on LinkedIn. This repository holds the
-reproducible technical material for it; start from the linked guide.
+An **episode** is a LinkedIn article that explains one step of the series. It
+does not add a new deployment: every episode runs on top of a lane above, either
+by deploying that lane or by running a local client or test against it. Several
+episodes can share the same lane (00a has three, 00c has two), and an episode
+may need only the code that runs against a lane you already deployed.
+
+Each article is published only on LinkedIn. This repository holds the
+reproducible technical material for it; the **Lane** column tells you which
+scenario to deploy first, and the other columns link to the guide and the exact
+version the article was written against.
 
 | Episode | Lane | LinkedIn article | Technical material on `main` | Pinned version |
 | --- | --- | --- | --- | --- |
