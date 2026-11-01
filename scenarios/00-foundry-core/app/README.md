@@ -80,6 +80,8 @@ selected in source order from the provided set of 100. All six document types ar
 are the expected answers. The command uses the same Azure CLI identity and model deployment
 as the Chat Completions sample, plus the Microsoft Foundry project's cloud evaluation API.
 No custom evaluator or hosted application is deployed.
+For a step-by-step explanation of the script (in Italian), see
+[How `benchmark_documents.py` works](benchmark_documents-explained.md).
 
 This benchmark is the reproducible technical companion for the LinkedIn article
 **00a Model Benchmark — Valid JSON, Wrong Priority**. The article and its
