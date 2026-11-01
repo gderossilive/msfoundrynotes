@@ -40,18 +40,19 @@ version the article was written against.
 | 00c Foundry Core — Private by Design, Reachable by Gateway | 00c | [Read on LinkedIn](https://www.linkedin.com/pulse/private-design-reachable-gateway-gianluca-de-rossi-owy8e/) | [Lane README](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md) and [private Foundry module guide](modules/core/private-foundry-scenario/main.md) | [`episode-00c-foundry-core-byo-vnet-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00c-foundry-core-byo-vnet-v1.0.0) |
 | 00c Chat Completions — One Blocked Call, One Policy, One Response | 00c | [Read on LinkedIn](https://www.linkedin.com/pulse/microsoft-foundry-notes-00c-chat-completions-one-blocked-de-rossi-gwlve/) | [Direct test, APIM policy and gateway test](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md#verify) with the [shared client](scenarios/00-foundry-core/app/README.md#run) | [`episode-00c-chat-completions-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00c-chat-completions-v1.0.0) |
 | 00a Model Benchmark — Valid JSON, Wrong Priority | 00a | Not yet published | [Ten-document benchmark](scenarios/00-foundry-core/app/README.md#document-classification-benchmark-00a) with Foundry Evaluation graders and a [script walkthrough](scenarios/00-foundry-core/app/benchmark_documents-explained.md) | [`episode-00a-model-benchmark-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00a-model-benchmark-v1.0.0) |
+| 00a Fine-Tuning — 60% to 100%, Still Not Production | 00a | Not yet published | [Fine-tuning guide](scenarios/00-foundry-core/app/README.md#document-classification-fine-tuning-00a) and [script walkthrough](scenarios/00-foundry-core/app/fine_tune_documents-explained.md) | [`episode-00a-model-fine-tuning-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00a-model-fine-tuning-v1.0.0) |
 
 `main` always contains the current source. A pinned version is the exact source
 the article was written against; use it to reproduce the article's results.
-Later changes, such as the broader project role described below, apply only to
-`main`. Do not add an `articles/` directory or editorial assets here; the root
+Versions pinned before the fine-tuning release predate the broader project role
+described below. Do not add an `articles/` directory or editorial assets here; the root
 `.gitignore` protects that boundary.
 
 ### 00a Fine-Tuning companion
 
-The current source also includes the technical companion for **00a Fine-Tuning
--- 60% to 100%, Still Not Production**. Its LinkedIn publication date is not
-yet scheduled. The [fine-tuning guide](scenarios/00-foundry-core/app/README.md#document-classification-fine-tuning-00a)
+The technical companion for **00a Fine-Tuning -- 60% to 100%, Still Not
+Production** is listed in the table above; its LinkedIn article is not yet
+published. The [fine-tuning guide](scenarios/00-foundry-core/app/README.md#document-classification-fine-tuning-00a)
 covers the synthetic 100-document source, deterministic 78/12/10 split,
 Developer-tier supervised training, validation-based checkpoint selection, and
 the held-out comparison.
