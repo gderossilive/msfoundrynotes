@@ -14,25 +14,24 @@ repository.
 Each lane provisions its own resources and can be deployed independently. No
 agent, retrieval system, business-data source, VPN, or Bastion host is included.
 
-## LinkedIn publication packages
+## Published episodes
 
-The repository at commit
-[`a11fb20`](https://github.com/gderossilive/msfoundrynotes/commit/a11fb200a230f833c971797def940bff6aa40788)
-contains the reproducible technical material for three articles planned for
-October 13-17, 2026. Article text, covers, diagrams, and LinkedIn post copy are intentionally
-excluded from Git and are published only through LinkedIn.
+Each episode article is published only on LinkedIn. This repository holds the
+reproducible technical material for it; start from the linked guide.
 
-| LinkedIn date | Article | Technical material in this repository |
-| --- | --- |
-| 2026-10-13 | Private by Design, Reachable by Gateway | Lane 00c, private endpoint, private DNS, API Management Developer, and static/live verification |
-| 2026-10-15 | 00c Chat Completions — One Blocked Call, One Policy, One Response | Shared Python client, direct negative test, separate APIM policy, and gateway path |
-| 2026-10-17 | 00a Model Benchmark — Valid JSON, Wrong Priority | Lane 00a `gpt-4.1-mini`, ten synthetic labeled documents, strict JSON output, and native Foundry Evaluation graders |
+| LinkedIn date | Episode | Lane | Technical material on `main` | Pinned version |
+| --- | --- | --- | --- | --- |
+| 2026-10-02 | 00a Foundry Core — Three Resources, One Model, No Agent Yet | 00a | [Lane README](scenarios/00-foundry-core/00a-foundry-core-public/README.md) and [Bicep guide](scenarios/00-foundry-core/00a-foundry-core-public/infra/main.md) | [`episode-00a-foundry-core-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00a-foundry-core-v1.0.0) |
+| 2026-10-05 | 00a Chat Completions — One Prompt, One Role, One Response | 00a | [Chat Completions client](scenarios/00-foundry-core/app/README.md#run) and [script walkthrough](scenarios/00-foundry-core/app/chat_completions-explained.md) | Use `main` |
+| 2026-10-13 | 00c Foundry Core — Private by Design, Reachable by Gateway | 00c | [Lane README](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md) and [private Foundry module guide](modules/core/private-foundry-scenario/main.md) | Use `main` |
+| 2026-10-15 | 00c Chat Completions — One Blocked Call, One Policy, One Response | 00c | [Direct test, APIM policy and gateway test](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md#verify) with the [shared client](scenarios/00-foundry-core/app/README.md#run) | [`episode-00c-chat-completions-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00c-chat-completions-v1.0.0) |
+| 2026-10-17 | 00a Model Benchmark — Valid JSON, Wrong Priority | 00a | [Ten-document benchmark](scenarios/00-foundry-core/app/README.md#document-classification-benchmark-00a) with Foundry Evaluation graders | [`episode-00a-model-benchmark-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00a-model-benchmark-v1.0.0) |
 
-The public repository is the technical companion for the LinkedIn articles:
-use the lane READMEs and the application guide for reproduction. The article text is published on LinkedIn
-on the dates above; this repository is its technical companion. Do not add an
-`articles/` directory or editorial assets here; the root `.gitignore` protects
-that boundary.
+`main` always contains the current source. A pinned version is the exact source
+the article was written against; use it to reproduce the article's results.
+Later changes, such as the broader project role described below, apply only to
+`main`. Do not add an `articles/` directory or editorial assets here; the root
+`.gitignore` protects that boundary.
 
 ### 00a Fine-Tuning companion
 

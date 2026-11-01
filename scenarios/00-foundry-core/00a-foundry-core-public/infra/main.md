@@ -32,7 +32,7 @@ Existing resource group
     |   Account SKU: S0
     |
     +-- Foundry project
-    |   +-- Foundry User assigned to the user at project scope
+    |   +-- Foundry Owner assigned to the user at project scope
     |
     +-- gpt-4.1-mini deployment
     |   Model: gpt-4.1-mini, version 2025-04-14
@@ -279,19 +279,21 @@ roles to the user identified by `deployerPrincipalId`.
 | Symbolic name | Role | Scope |
 | --- | --- | --- |
 | `deployerOpenAiUser` | Cognitive Services OpenAI User | Foundry account |
-| `deployerFoundryUser` | Foundry User | Foundry project |
+| `deployerFoundryOwner` | Foundry Owner | Foundry project |
 
 The first role enables the use of Azure OpenAI inference APIs within
-the account. The second grants the project privileges required by the
-benchmark's Microsoft Foundry Evaluation run.
+the account. The second grants the project privileges required to run
+Microsoft Foundry Evaluation, train a fine-tuned model, and deploy the
+resulting checkpoint. Foundry Owner is broader than the benchmark-only
+Foundry User role used by earlier versions of this template; review it before
+provisioning.
 
 **Pay attention to scope:** a role's name does not automatically extend
-an assignment beyond the resource to which it applies. A Foundry User
+an assignment beyond the resource to which it applies. A Foundry Owner
 assignment on a project is not equivalent to an Owner assignment on the
-subscription. Because the model deployment is a child of the account,
-the ARM operations that create it require authorization at that level too.
-The project-scoped role alone should not be considered sufficient evidence
-of all the permissions required to deploy models.
+subscription. The Cognitive Services OpenAI User role is assigned on the
+account, where inference is authorized; the project-scoped role does not
+replace it.
 
 ### The Properties of a Role Assignment
 
@@ -317,7 +319,7 @@ The IDs used are:
 | Role | Definition ID |
 | --- | --- |
 | Cognitive Services OpenAI User | `5e0bd9bd-7b93-4f28-af87-19fc36ad61bd` |
-| Foundry User | `53ca6127-db72-4b80-b1b0-d745d6d5456d` |
+| Foundry Owner | `c883944f-8b7b-4483-af10-35834be79c4a` |
 
 The actual scope is declared separately, for example through
 `scope: foundryAccount`.
@@ -371,7 +373,7 @@ Module completion
             |
             +--> OpenAI User role on the account
             |
-            +--> Foundry User role on the project
+            +--> Foundry Owner role on the project
 ```
 
 The two RBAC assignments do not depend on each other and can be handled
