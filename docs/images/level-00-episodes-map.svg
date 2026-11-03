@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1250" viewBox="0 0 1440 1250" role="img" aria-labelledby="title description">
+  <title id="title">Level 00 Foundry Core: episodes mapped on lanes a, b and c - draft</title>
+  <desc id="description">Level 00 has eleven episodes. Lane 00a has seven: Foundry Core, Chat Completions, Model Benchmark, Model Fine-Tuning, Model Monitoring, Managed Compute and Public Gateway. Lane 00b has no episode yet. Lane 00c has four: Foundry Core BYO VNet, Chat Completions, Token Governance and Usage Attribution. The first episode of a lane deploys the lane; the others add a client, an opt-in profile or a gateway policy on top of it. The 00a Public Gateway reuses the shared APIM policy module of 00c.</desc>
+  <defs>
+    <style>
+      text { font-family: "Segoe UI", Arial, sans-serif; fill: #172b4d; }
+      .eyebrow { font-size: 15px; font-weight: 700; letter-spacing: 2px; fill: #036958; }
+      .label { font-size: 19px; font-weight: 600; }
+      .muted { fill: #52647a; }
+      .small { font-size: 16px; }
+      .sub { font-size: 15px; fill: #52647a; }
+      .mono { font-family: Consolas, "Liberation Mono", monospace; }
+      .num { font-size: 16px; font-weight: 700; fill: #fff; text-anchor: middle; }
+      .pill { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-anchor: middle; fill: #fff; }
+      .status { font-size: 13px; font-weight: 600; fill: #52647a; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#6d62b5"/>
+    </marker>
+  </defs>
+
+  <rect width="1440" height="1250" fill="#f4f7fb"/>
+  <path d="M0 0H1440V8H0Z" fill="#087f72"/>
+  <text x="40" y="49" class="eyebrow">MICROSOFT FOUNDRY NOTES / LEVEL 00</text>
+  <text x="40" y="99" font-size="43" font-weight="700">Foundry Core: episodes on lanes</text>
+  <text x="40" y="134" font-size="20" class="muted">11 episodes. The first of each lane deploys it; the others run on top of it.</text>
+  <rect x="1171" y="38" width="229" height="33" rx="16" fill="#fff1cd" stroke="#dcc27f"/>
+  <text x="1285" y="60" text-anchor="middle" font-size="14" font-weight="700" fill="#854d0e">EPISODE PLAN</text>
+
+  <!-- lane headers -->
+  <g transform="translate(40 165)">
+    <rect width="440" height="80" rx="12" fill="#fff" stroke="#cddfe9"/>
+    <rect width="6" height="80" rx="3" fill="#167ba8"/>
+    <text x="23" y="33" class="label"><tspan class="mono">00a</tspan> / Public</text>
+    <text x="23" y="59" class="small muted">Entra ID authenticated; 7 episodes</text>
+  </g>
+  <g transform="translate(500 165)">
+    <rect width="440" height="80" rx="12" fill="#fff" stroke="#cddfe9"/>
+    <rect width="6" height="80" rx="3" fill="#6d62b5"/>
+    <text x="23" y="33" class="label"><tspan class="mono">00b</tspan> / Foundry Managed VNet</text>
+    <text x="23" y="59" class="small muted">Private ingress, managed outbound; 0 episodes</text>
+  </g>
+  <g transform="translate(960 165)">
+    <rect width="440" height="80" rx="12" fill="#fff" stroke="#cddfe9"/>
+    <rect width="6" height="80" rx="3" fill="#087f72"/>
+    <text x="23" y="33" class="label"><tspan class="mono">00c</tspan> / BYO VNet</text>
+    <text x="23" y="59" class="small muted">Private Foundry behind APIM; 4 episodes</text>
+  </g>
+
+  <!-- lane spines -->
+  <path d="M70 304V976" stroke="#9fc4d8" stroke-width="3"/>
+  <path d="M990 304V640" stroke="#8cc9bd" stroke-width="3"/>
+
+  <!-- lane b placeholder -->
+  <g transform="translate(500 270)">
+    <rect width="440" height="100" rx="10" fill="#fafaff" stroke="#a79fd6" stroke-dasharray="6 4"/>
+    <text x="220" y="42" text-anchor="middle" class="label" fill="#6d62b5" style="fill:#6d62b5">No episode yet</text>
+    <text x="220" y="68" text-anchor="middle" class="sub">00b is not part of this repository yet.</text>
+  </g>
+
+  <!-- lane a episodes -->
+  <g transform="translate(40 270)">
+    <rect width="440" height="100" rx="10" fill="#e2f5eb" stroke="#90cbb0"/>
+    <circle cx="30" cy="34" r="15" fill="#167ba8"/><text x="30" y="40" class="num">1</text>
+    <text x="60" y="40" class="label">Foundry Core</text>
+    <text x="60" y="62" class="sub">Account, project and one model</text>
+    <rect x="60" y="72" width="56" height="22" rx="11" fill="#087f72"/><text x="88" y="87" class="pill">INFRA</text>
+    <text x="128" y="88" class="status">Published on LinkedIn</text>
+  </g>
+  <g transform="translate(40 382)">
+    <rect width="440" height="100" rx="10" fill="#e2f5eb" stroke="#90cbb0"/>
+    <circle cx="30" cy="34" r="15" fill="#167ba8"/><text x="30" y="40" class="num">2</text>
+    <text x="60" y="40" class="label">Chat Completions</text>
+    <text x="60" y="62" class="sub">One prompt, one role, one response</text>
+    <rect x="60" y="72" width="66" height="22" rx="11" fill="#18688a"/><text x="93" y="87" class="pill">CLIENT</text>
+    <text x="138" y="88" class="status">Published on LinkedIn</text>
+  </g>
+  <g transform="translate(40 494)">
+    <rect width="440" height="100" rx="10" fill="#e2f5eb" stroke="#90cbb0"/>
+    <circle cx="30" cy="34" r="15" fill="#167ba8"/><text x="30" y="40" class="num">3</text>
+    <text x="60" y="40" class="label">Model Benchmark</text>
+    <text x="60" y="62" class="sub">Ten documents, native Foundry evaluators</text>
+    <rect x="60" y="72" width="66" height="22" rx="11" fill="#18688a"/><text x="93" y="87" class="pill">CLIENT</text>
+    <text x="138" y="88" class="status">Published on LinkedIn</text>
+  </g>
+  <g transform="translate(40 606)">
+    <rect width="440" height="100" rx="10" fill="#e0f2fe" stroke="#7abbd7"/>
+    <circle cx="30" cy="34" r="15" fill="#167ba8"/><text x="30" y="40" class="num">4</text>
+    <text x="60" y="40" class="label">Model Fine-Tuning</text>
+    <text x="60" y="62" class="sub">gpt-4.1-mini, held-out test sample</text>
+    <rect x="60" y="72" width="66" height="22" rx="11" fill="#18688a"/><text x="93" y="87" class="pill">CLIENT</text>
+    <text x="138" y="88" class="status">Release pinned, LinkedIn pending</text>
+  </g>
+  <g transform="translate(40 718)">
+    <rect width="440" height="100" rx="10" fill="#fff8e6" stroke="#d7b76c" stroke-dasharray="6 4"/>
+    <circle cx="30" cy="34" r="15" fill="#167ba8"/><text x="30" y="40" class="num">5</text>
+    <text x="60" y="40" class="label">Model Monitoring</text>
+    <text x="60" y="62" class="sub">Token metrics, traces, native evaluations</text>
+    <rect x="60" y="72" width="72" height="22" rx="11" fill="#854d0e"/><text x="96" y="87" class="pill">PROFILE</text>
+    <text x="144" y="88" class="status">Draft</text>
+  </g>
+  <g transform="translate(40 830)">
+    <rect width="440" height="100" rx="10" fill="#fff8e6" stroke="#d7b76c" stroke-dasharray="6 4"/>
+    <circle cx="30" cy="34" r="15" fill="#167ba8"/><text x="30" y="40" class="num">6</text>
+    <text x="60" y="40" class="label">Managed Compute</text>
+    <text x="60" y="62" class="sub">Open-weight model on dedicated GPU</text>
+    <rect x="60" y="72" width="72" height="22" rx="11" fill="#854d0e"/><text x="96" y="87" class="pill">PROFILE</text>
+    <text x="144" y="88" class="status">Draft</text>
+  </g>
+  <g transform="translate(40 942)">
+    <rect width="440" height="100" rx="10" fill="#fff8e6" stroke="#d7b76c" stroke-dasharray="6 4"/>
+    <circle cx="30" cy="34" r="15" fill="#167ba8"/><text x="30" y="40" class="num">7</text>
+    <text x="60" y="40" class="label">Public Gateway</text>
+    <text x="60" y="62" class="sub">APIM Basic v2: an extra door, not the only one</text>
+    <rect x="60" y="72" width="72" height="22" rx="11" fill="#854d0e"/><text x="96" y="87" class="pill">PROFILE</text>
+    <text x="144" y="88" class="status">Draft</text>
+  </g>
+
+  <!-- lane c episodes -->
+  <g transform="translate(960 270)">
+    <rect width="440" height="100" rx="10" fill="#e2f5eb" stroke="#90cbb0"/>
+    <circle cx="30" cy="34" r="15" fill="#087f72"/><text x="30" y="40" class="num">1</text>
+    <text x="60" y="40" class="label">Foundry Core BYO VNet</text>
+    <text x="60" y="62" class="sub">Private by design, reachable by gateway</text>
+    <rect x="60" y="72" width="56" height="22" rx="11" fill="#087f72"/><text x="88" y="87" class="pill">INFRA</text>
+    <text x="128" y="88" class="status">Published on LinkedIn</text>
+  </g>
+  <g transform="translate(960 382)">
+    <rect width="440" height="100" rx="10" fill="#e2f5eb" stroke="#90cbb0"/>
+    <circle cx="30" cy="34" r="15" fill="#087f72"/><text x="30" y="40" class="num">2</text>
+    <text x="60" y="40" class="label">Chat Completions</text>
+    <text x="60" y="62" class="sub">One blocked call, one policy, one response</text>
+    <rect x="60" y="72" width="66" height="22" rx="11" fill="#18688a"/><text x="93" y="87" class="pill">CLIENT</text>
+    <text x="138" y="88" class="status">Published on LinkedIn</text>
+  </g>
+  <g transform="translate(960 494)">
+    <rect width="440" height="100" rx="10" fill="#fff8e6" stroke="#d7b76c" stroke-dasharray="6 4"/>
+    <circle cx="30" cy="34" r="15" fill="#087f72"/><text x="30" y="40" class="num">3</text>
+    <text x="60" y="40" class="label">Token Governance</text>
+    <text x="60" y="62" class="sub">Per-caller token budget; the 429 is the budget</text>
+    <rect x="60" y="72" width="66" height="22" rx="11" fill="#6d28d9"/><text x="93" y="87" class="pill">POLICY</text>
+    <text x="138" y="88" class="status">Draft</text>
+  </g>
+  <g transform="translate(960 606)">
+    <rect width="440" height="100" rx="10" fill="#fff8e6" stroke="#d7b76c" stroke-dasharray="6 4"/>
+    <circle cx="30" cy="34" r="15" fill="#087f72"/><text x="30" y="40" class="num">4</text>
+    <text x="60" y="40" class="label">Usage Attribution</text>
+    <text x="60" y="62" class="sub">Per-caller token ledger: who used how much</text>
+    <rect x="60" y="72" width="72" height="22" rx="11" fill="#854d0e"/><text x="96" y="87" class="pill">PROFILE</text>
+    <text x="144" y="88" class="status">Draft</text>
+  </g>
+
+  <!-- cross-lane reuse -->
+  <path d="M480 992C720 992 720 544 960 544" fill="none" stroke="#6d62b5" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <rect x="610" y="738" width="220" height="48" rx="8" fill="#f4f7fb" stroke="#a79fd6"/>
+  <text x="720" y="759" text-anchor="middle" font-size="14" font-weight="600" fill="#6d62b5" style="fill:#6d62b5">Same shared APIM policy</text>
+  <text x="720" y="777" text-anchor="middle" font-size="14" font-weight="600" fill="#6d62b5" style="fill:#6d62b5">module as 00c</text>
+
+  <!-- legend -->
+  <rect x="40" y="1072" width="1360" height="84" rx="10" fill="#fff" stroke="#d3dce8"/>
+  <rect x="58" y="1090" width="26" height="18" rx="4" fill="#e2f5eb" stroke="#90cbb0"/>
+  <text x="94" y="1104" class="small muted">Published on LinkedIn</text>
+  <rect x="330" y="1090" width="26" height="18" rx="4" fill="#e0f2fe" stroke="#7abbd7"/>
+  <text x="366" y="1104" class="small muted">Release pinned, LinkedIn pending</text>
+  <rect x="680" y="1090" width="26" height="18" rx="4" fill="#fff8e6" stroke="#d7b76c" stroke-dasharray="4 3"/>
+  <text x="716" y="1104" class="small muted">Draft, not yet published</text>
+  <rect x="58" y="1124" width="56" height="22" rx="11" fill="#087f72"/><text x="86" y="1139" class="pill">INFRA</text>
+  <text x="124" y="1140" class="small muted">Deploys the lane</text>
+  <rect x="330" y="1124" width="72" height="22" rx="11" fill="#854d0e"/><text x="366" y="1139" class="pill">PROFILE</text>
+  <text x="412" y="1140" class="small muted">Opt-in Bicep switch</text>
+  <rect x="680" y="1124" width="66" height="22" rx="11" fill="#6d28d9"/><text x="713" y="1139" class="pill">POLICY</text>
+  <text x="756" y="1140" class="small muted">Opt-in gateway policy</text>
+  <rect x="1000" y="1124" width="66" height="22" rx="11" fill="#18688a"/><text x="1033" y="1139" class="pill">CLIENT</text>
+  <text x="1076" y="1140" class="small muted">Local script on a deployed lane</text>
+
+  <rect x="40" y="1172" width="1360" height="52" rx="10" fill="#e8eff6"/>
+  <text x="59" y="1203" font-size="17" font-weight="700">Shared application: one Python client family serves 00a and 00c.</text>
+  <text x="730" y="1203" class="small muted">scenarios/00-foundry-core/app/</text>
+  <text x="40" y="1242" font-size="14" class="muted">Numbers show the editorial order within a lane. Plan as of 2026-11-03; publication dates are not committed.</text>
+</svg>

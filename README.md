@@ -56,6 +56,20 @@ review it before provisioning. Fine-tuning, checkpoint deployments, and
 evaluations are separate explicit commands and can incur charges. Nothing is
 trained by provisioning or by the local tests.
 
+## Episode plan
+
+The diagram shows the level 00 episodes by lane, in editorial order: what is
+already published on LinkedIn, what has a pinned release waiting for its
+article, and what is still a draft. It is a plan, not a schedule: publication
+dates are not committed and the order can change. A draft episode has no
+technical companion or pinned version in this repository yet; both appear here
+when its article is published.
+
+![Level 00 episode plan. Lane 00a has seven episodes: Foundry Core, Chat Completions, Model Benchmark and Model Fine-Tuning are published or about to be, while Model Monitoring, Managed Compute and Public Gateway are drafts. Lane 00c has four: Foundry Core BYO VNet and Chat Completions are published, Token Governance and Usage Attribution are drafts. Lane 00b has no episode yet. Public Gateway on 00a reuses the shared APIM policy module of 00c.](docs/images/level-00-episodes-map.png)
+
+The diagram is also available as an editable
+[SVG](docs/images/level-00-episodes-map.svg).
+
 ## Prerequisites
 
 - Bash on Linux, macOS or WSL, standard shell utilities, `jq`, and Git.
@@ -157,6 +171,7 @@ scenarios/00-foundry-core/      Level 00 lanes and shared Python application
 modules/                        Shared Foundry, network, and gateway modules
 scripts/                        Bootstrap, policy, metadata, and test helpers
 docs/testing.md                 Static, live, and inference guidance
+docs/images/                    Level 00 episode plan diagram (SVG and PNG)
 ```
 
 Technical names containing `FoundryLab` are retained to preserve the deployment
