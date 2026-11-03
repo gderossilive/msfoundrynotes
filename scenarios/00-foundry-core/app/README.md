@@ -148,7 +148,7 @@ Keep these ten documents out of fine-tuning data for the before/after comparison
 
 ## Document classification fine-tuning (00a)
 
-This is the technical companion for the **00a Fine-Tuning -- 60% to 100%, Still
+This is the technical companion for the **00a Model Fine-Tuning -- 60% to 100%, Still
 Not Production** episode. Article text and publication images remain outside this
 repository. For a step-by-step explanation of the scripts (in Italian), see
 [How the fine-tuning scripts work](fine_tune_documents-explained.md).

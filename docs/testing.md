@@ -7,7 +7,7 @@ contains the 00a public lane and the independent 00c BYO VNet lane.
 These technical packages support the Microsoft Foundry Notes episodes listed in
 the [repository README](../README.md#published-episodes): the 00a and 00c Foundry
 Core foundations, both Chat Completions companions, and the 00a model benchmark,
-plus the 00a Fine-Tuning follow-up, which has no scheduled LinkedIn article. Article text and publication images are intentionally outside this
+plus the 00a Model Fine-Tuning follow-up, which has no scheduled LinkedIn article. Article text and publication images are intentionally outside this
 repository; this document validates the reproducible code and infrastructure
 only.
 
