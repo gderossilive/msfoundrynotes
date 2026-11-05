@@ -65,7 +65,7 @@ dates are not committed and the order can change. A draft episode has no
 technical companion or pinned version in this repository yet; both appear here
 when its article is published.
 
-![Level 00 episode plan. Lane 00a has seven episodes: Foundry Core, Chat Completions, Model Benchmark and Model Fine-Tuning are published or about to be, while Model Monitoring, Managed Compute and Public Gateway are drafts. Lane 00c has four: Foundry Core BYO VNet and Chat Completions are published, Token Governance and Usage Attribution are drafts. Lane 00b has no episode yet. Public Gateway on 00a reuses the shared APIM policy module of 00c.](docs/images/level-00-episodes-map.png)
+![Level 00 episode plan. Lane 00a has seven episodes: Foundry Core, Chat Completions, Model Benchmark and Model Fine-Tuning are published, while Model Monitoring, Managed Compute and Public Gateway are drafts. Lane 00c has four: Foundry Core BYO VNet and Chat Completions are published, Token Governance and Usage Attribution are drafts. Lane 00b has no episode yet. Public Gateway on 00a reuses the shared APIM policy module of 00c.](docs/images/level-00-episodes-map.png)
 
 The diagram is also available as an editable
 [SVG](docs/images/level-00-episodes-map.svg).

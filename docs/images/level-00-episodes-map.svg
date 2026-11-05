@@ -84,12 +84,12 @@
     <text x="138" y="88" class="status">Published on LinkedIn</text>
   </g>
   <g transform="translate(40 606)">
-    <rect width="440" height="100" rx="10" fill="#e0f2fe" stroke="#7abbd7"/>
+    <rect width="440" height="100" rx="10" fill="#e2f5eb" stroke="#90cbb0"/>
     <circle cx="30" cy="34" r="15" fill="#167ba8"/><text x="30" y="40" class="num">4</text>
     <text x="60" y="40" class="label">Model Fine-Tuning</text>
     <text x="60" y="62" class="sub">gpt-4.1-mini, held-out test sample</text>
     <rect x="60" y="72" width="66" height="22" rx="11" fill="#18688a"/><text x="93" y="87" class="pill">CLIENT</text>
-    <text x="138" y="88" class="status">Release pinned, LinkedIn pending</text>
+    <text x="138" y="88" class="status">Published on LinkedIn</text>
   </g>
   <g transform="translate(40 718)">
     <rect width="440" height="100" rx="10" fill="#fff8e6" stroke="#d7b76c" stroke-dasharray="6 4"/>
@@ -176,5 +176,5 @@
   <rect x="40" y="1172" width="1360" height="52" rx="10" fill="#e8eff6"/>
   <text x="59" y="1203" font-size="17" font-weight="700">Shared application: one Python client family serves 00a and 00c.</text>
   <text x="730" y="1203" class="small muted">scenarios/00-foundry-core/app/</text>
-  <text x="40" y="1242" font-size="14" class="muted">Numbers show the editorial order within a lane. Plan as of 2026-11-03; publication dates are not committed.</text>
+  <text x="40" y="1242" font-size="14" class="muted">Numbers show the editorial order within a lane. Plan as of 2026-11-05; publication dates are not committed.</text>
 </svg>
