@@ -141,6 +141,8 @@ for core_lane in 00a-foundry-core-public 00c-foundry-core-byo-vnet; do
   grep -q "FOUNDRY_NETWORK_PROFILE=${core_id:2:1}" "$test_root/azd.log"
   ! grep -q 'AZURE_MANAGED_COMPUTE_' "$test_root/azd.log"
   pass "$core_id bootstrap uses its own network profile and resource group"
+  grep -q 'AZURE_APIM_TOKENS_PER_MINUTE=0' "$test_root/azd.log"
+  pass "$core_id keeps the per-caller token limit disabled by default"
 done
 
 grep -q 'AZURE_APIM_ALLOWED_PRINCIPAL_IDS=\["44444444-4444-4444-4444-444444444444"\]' "$test_root/azd.log"
@@ -154,6 +156,17 @@ grep -q 'AZURE_DEPLOYER_PRINCIPAL_ID=33333333-3333-3333-3333-333333333333' "$tes
 grep -q 'AZURE_DEFAULT_MODEL=gpt-4.1-mini' "$test_root/azd.log"
 grep -q 'AZURE_DEFAULT_MODEL_VERSION=2025-04-14' "$test_root/azd.log"
 pass '00a persists its human caller and benchmark model'
+
+: >"$test_root/azd.log"
+: >"$test_root/az.log"
+PATH="$test_root/bin:$PATH" MOCK_AZD_LOG="$test_root/azd.log" MOCK_AZ_LOG="$test_root/az.log" \
+  bash "$test_root/scripts/bootstrap-scenario-env.sh" "$test_lane" \
+    --environment monitoring --location swedencentral >/dev/null
+grep -q 'AZURE_LOCATION=swedencentral' "$test_root/azd.log"
+grep -q 'env select monitoring' "$test_root/azd.log"
+grep -q 'group create.*--location swedencentral' "$test_root/az.log"
+pass '00a supports scoped monitoring environment and location overrides'
+expect_failure 'requires a value' bash "$test_root/scripts/bootstrap-scenario-env.sh" "$test_lane" --location
 
 test_lane='06-foundry-managed-compute/06a-foundry-managed-compute-public'
 mkdir -p "$test_root/scenarios/$test_lane"

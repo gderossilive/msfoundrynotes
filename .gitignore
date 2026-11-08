@@ -32,6 +32,11 @@ scenarios/00-foundry-core/app/data/fine-tuning/
 scenarios/00-foundry-core/app/fine-tuning-state.json
 scenarios/00-foundry-core/app/fine-tuning-final-results.json
 scenarios/00-foundry-core/app/fine-tuning-baseline-results.json
+scenarios/00-foundry-core/app/monitoring-results.json
+scenarios/00-foundry-core/app/token-limit-results.json
+scenarios/00-foundry-core/app/usage-report.json
+**/infra/apim-policy.json
+**/infra/monitoring.json
 
 # Build and editor output
 dist/

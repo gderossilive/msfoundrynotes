@@ -56,7 +56,7 @@ class Deployment:
     def base_url(self, target: str) -> str:
         if target == "direct":
             return self.direct_base_url
-        if target == "gateway" and self.lane_id == "00c" and self.gateway_endpoint:
+        if target == "gateway" and self.gateway_endpoint:
             return self.gateway_endpoint
         raise ConfigurationError(
             f'Lane {self.lane_id} does not expose a configured "{target}" target.'
@@ -115,7 +115,8 @@ def load_deployment(environment_name: str, lane_id: str = "00a") -> Deployment:
             "The deployed lane is missing a valid AZURE_AI_MODEL_DEPLOYMENT_NAME."
         )
 
-    gateway_endpoint = values.get("AZURE_APIM_CHAT_COMPLETIONS_ENDPOINT")
+    # azd stores outputs of disabled optional profiles as empty strings.
+    gateway_endpoint = values.get("AZURE_APIM_CHAT_COMPLETIONS_ENDPOINT") or None
     project_name = values.get("AZURE_AI_PROJECT_NAME")
     resource_group = values.get("AZURE_RESOURCE_GROUP")
     subscription_id = values.get("AZURE_SUBSCRIPTION_ID")
@@ -132,16 +133,15 @@ def load_deployment(environment_name: str, lane_id: str = "00a") -> Deployment:
         raise ConfigurationError(
             "The deployed 00a lane is missing AZURE_RESOURCE_GROUP or AZURE_SUBSCRIPTION_ID."
         )
-    if lane_id == "00c":
-        if not isinstance(gateway_endpoint, str) or not GATEWAY_ENDPOINT_PATTERN.fullmatch(
-            gateway_endpoint
-        ):
-            raise ConfigurationError(
-                "The deployed 00c lane is missing a valid AZURE_APIM_CHAT_COMPLETIONS_ENDPOINT."
-            )
-    elif gateway_endpoint is not None:
+    if lane_id == "00c" and gateway_endpoint is None:
         raise ConfigurationError(
-            "The public lane 00a must not expose an API Management gateway endpoint."
+            "The deployed 00c lane is missing a valid AZURE_APIM_CHAT_COMPLETIONS_ENDPOINT."
+        )
+    if gateway_endpoint is not None and (
+        not isinstance(gateway_endpoint, str) or not GATEWAY_ENDPOINT_PATTERN.fullmatch(gateway_endpoint)
+    ):
+        raise ConfigurationError(
+            f"The deployed {lane_id} lane has an invalid AZURE_APIM_CHAT_COMPLETIONS_ENDPOINT."
         )
 
     return Deployment(
@@ -209,7 +209,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--target",
         choices=("direct", "gateway"),
         default="direct",
-        help="Endpoint to call. Gateway is available only for lane 00c after its APIM policy is applied.",
+        help=(
+            "Endpoint to call. Gateway is available for lane 00c, and for lane 00a when its optional "
+            "gateway is enabled, after the APIM policy is applied."
+        ),
     )
     parser.add_argument("prompt", help="Single prompt to send to the deployed model.")
     return parser.parse_args(argv)

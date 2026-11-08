@@ -9,6 +9,10 @@ script has a step-by-step walkthrough in Italian:
 [`chat_completions.py`](chat_completions-explained.md),
 [`benchmark_documents.py`](benchmark_documents-explained.md), and the fine-tuning
 scripts [`prepare_finetuning_data.py` and `fine_tune_documents.py`](fine_tune_documents-explained.md).
+The new technical companions also have Italian guides:
+[Model Monitoring](monitor_model-explained.md),
+[Public Gateway](public_gateway-explained.md), and
+[Token Governance](token_limit_demo-explained.md).
 
 ## Prerequisites
 
@@ -58,7 +62,8 @@ The client uses the signed-in Azure CLI user through `AzureCliCredential` and th
 https://<account>.services.ai.azure.com/openai/v1/
 ```
 
-For the 00c gateway test it instead uses `https://<apim>.azure-api.net/openai/v1/`. APIM validates
+For the 00c gateway test, or 00a with its optional gateway, it instead uses
+`https://<apim>.azure-api.net/openai/v1/`. APIM validates
 the caller token and allowlist, then replaces the backend authorization with its managed identity.
 
 If authentication succeeds but authorization fails, verify the 00a deployer role or the 00c gateway
@@ -74,8 +79,71 @@ python -m unittest -v \
   test_chat_completions.py \
   test_benchmark_documents.py \
   test_prepare_finetuning_data.py \
-  test_fine_tune_documents.py
+  test_fine_tune_documents.py \
+  test_monitor_model.py \
+  test_token_limit_demo.py \
+  test_usage_report.py
 ```
+
+## Model monitoring (00a)
+
+The [Italian script walkthrough](monitor_model-explained.md) covers ten
+bounded synthetic model calls, token usage, duration, content-free client spans,
+and optional native quality/safety evaluation. It reuses the existing model
+and benchmark fixtures, creates no agent and requires no fine-tuning.
+
+Without tracing, the base requirements suffice. With the
+[monitoring profile](../00a-foundry-core-public/README.md#optional-model-monitoring)
+provisioned and inference/evaluation charges approved:
+
+```bash
+python -m pip install -r requirements-monitoring.txt
+python monitor_model.py --environment <00a-azd-environment> --trace --evaluate --evaluate-safety
+```
+
+Each execution starts a fresh run of up to ten sequential calls, maximum 128
+output tokens each, no automatic retries. The ignored `monitoring-results.json`
+stores operational metadata, not message content or credentials. Missing
+signals stay missing. Evaluations persist in Foundry and have separate costs.
+Tracing SDK contract tests need the optional requirements; otherwise those
+specific tests are skipped.
+
+## Public gateway (00a)
+
+Follow the [Italian Public Gateway guide](public_gateway-explained.md) to
+enable Basic v2 and apply the shared APIM policy. **Apply it immediately after
+provisioning**: no initial deny-all policy is assumed.
+
+```bash
+python chat_completions.py --environment <00a-azd-environment> --scenario 00a --target direct "Reply with one word: ready."
+python chat_completions.py --environment <00a-azd-environment> --scenario 00a --target gateway "Reply with one word: ready."
+```
+
+Both paths can work: the account stays public and the deployer retains its
+direct role. Optional per-caller metrics see only APIM traffic. The
+[usage report](usage_report-explained.md) with `--scenario 00a` quantifies
+model-minus-gateway tokens; an intentional bypass is still reported as a
+nonzero reconciliation result, not silently accepted.
+
+## Per-caller token governance (00a/00c)
+
+The [Italian token demo walkthrough](token_limit_demo-explained.md) shows
+A reaching its budget, B remaining unaffected and A recovering after
+Retry-After. Enable the budget and apply the policy from the selected
+[00c lane](../00c-foundry-core-byo-vnet/README.md#per-caller-token-limit-opt-in)
+or [00a gateway profile](../00a-foundry-core-public/README.md#optional-public-gateway-api-management-basic-v2).
+
+```bash
+python token_limit_demo.py --environment <00c-azd-environment> --scenario 00c \
+  --caller-b-config-dir ../../../.azure/00c-second-caller/<00c-azd-environment>/az
+```
+
+For 00a, change the lane and B profile path to 00a. B must already be signed
+in, through the separately authorized helper or a second user. The demo is
+bounded (default 15 initial attempts, allowed 1-50), disables automatic retries
+and writes only status/counters/times to the ignored report.
+Developer sliding windows and v2 token buckets differ; a model-side 429 is
+not distinguished merely by its HTTP code. No load test is implied.
 
 ## Document classification benchmark (00a)
 

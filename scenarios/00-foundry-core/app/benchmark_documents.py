@@ -96,6 +96,10 @@ def classify_document(
         ],
         response_format=schema,
     )
+    return parse_classification(completion, schema)
+
+
+def parse_classification(completion: Any, schema: dict[str, Any]) -> dict[str, str]:
     if not completion.choices:
         raise ResponseError("No completion choices.")
     choice = completion.choices[0]
@@ -118,6 +122,19 @@ def classify_document(
     return prediction
 
 
+def evaluation_row(document: Document, prediction: dict[str, str]) -> dict[str, str]:
+    return {
+        **{f"expected_{field}": document.expected[field] for field in FIELDS},
+        **{f"predicted_{field}": prediction[field] for field in FIELDS},
+        "expected_all_fields": json.dumps(
+            [document.expected[field] for field in FIELDS], separators=(",", ":")
+        ),
+        "predicted_all_fields": json.dumps(
+            [prediction[field] for field in FIELDS], separators=(",", ":")
+        ),
+    }
+
+
 def collect_predictions(
     client: Any, model: str, documents: list[Document]
 ) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
@@ -133,17 +150,7 @@ def collect_predictions(
             result.update({"status": "error", "error": str(exc)})
         else:
             result.update({"status": "valid", "predicted": prediction})
-            row = {
-                **{f"expected_{field}": document.expected[field] for field in FIELDS},
-                **{f"predicted_{field}": prediction[field] for field in FIELDS},
-                "expected_all_fields": json.dumps(
-                    [document.expected[field] for field in FIELDS], separators=(",", ":")
-                ),
-                "predicted_all_fields": json.dumps(
-                    [prediction[field] for field in FIELDS], separators=(",", ":")
-                ),
-            }
-            rows.append(row)
+            rows.append(evaluation_row(document, prediction))
         results.append(result)
     return results, rows
 
@@ -158,8 +165,31 @@ def run_foundry_evaluation(client: Any, rows: list[dict[str, str]]) -> dict[str,
         for side in ("expected", "predicted")
         for field in fields
     }
+    criteria = [
+        {
+            "type": "string_check",
+            "name": field,
+            "input": f"{{{{item.predicted_{field}}}}}",
+            "reference": f"{{{{item.expected_{field}}}}}",
+            "operation": "eq",
+        }
+        for field in fields
+    ]
+    return run_dataset_evaluation(client, "00a-document-classification", rows, properties, criteria)
+
+
+def run_dataset_evaluation(
+    client: Any,
+    name: str,
+    rows: list[dict[str, str]],
+    properties: dict[str, dict[str, str]],
+    criteria: list[dict[str, Any]],
+) -> dict[str, Any]:
+    if not rows:
+        raise ConfigurationError("No responses to evaluate in Foundry.")
+    fields = tuple(criterion["name"] for criterion in criteria)
     evaluation = client.evals.create(
-        name="00a-document-classification",
+        name=name,
         data_source_config={
             "type": "custom",
             "item_schema": {
@@ -169,16 +199,7 @@ def run_foundry_evaluation(client: Any, rows: list[dict[str, str]]) -> dict[str,
                 "additionalProperties": False,
             },
         },
-        testing_criteria=[
-            {
-                "type": "string_check",
-                "name": field,
-                "input": f"{{{{item.predicted_{field}}}}}",
-                "reference": f"{{{{item.expected_{field}}}}}",
-                "operation": "eq",
-            }
-            for field in fields
-        ],
+        testing_criteria=criteria,
     )
     run = client.evals.runs.create(
         eval_id=evaluation.id,

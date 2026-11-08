@@ -7,6 +7,10 @@ validate_apim_principal_ids() {
   ' <<<"$1" >/dev/null
 }
 
+validate_apim_tokens_per_minute() {
+  [[ "$1" =~ ^[0-9]{1,8}$ ]] && (( 10#$1 <= 10000000 ))
+}
+
 check_private_security_static() {
   require_command jq
   local ssh_script="$scenario_root/test/test-scenario.sh"

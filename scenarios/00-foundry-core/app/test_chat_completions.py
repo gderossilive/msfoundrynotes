@@ -90,11 +90,72 @@ class LoadDeploymentTests(unittest.TestCase):
         with self.assertRaisesRegex(chat_completions.ConfigurationError, "00a or 00c"):
             chat_completions.load_deployment("private", "00b")
 
-    def test_rejects_gateway_target_for_00a(self) -> None:
+    def test_00a_without_a_gateway_does_not_expose_the_gateway_target(self) -> None:
         deployment = chat_completions.Deployment("00a", "aifoundry123", "gpt-5-mini")
 
         with self.assertRaisesRegex(chat_completions.ConfigurationError, "does not expose"):
             deployment.base_url("gateway")
+
+    def test_00a_with_a_gateway_exposes_the_gateway_target(self) -> None:
+        deployment = chat_completions.Deployment(
+            "00a", "aifoundry123", "gpt-5-mini", "https://apim123.azure-api.net/openai/v1/"
+        )
+
+        self.assertEqual(deployment.base_url("gateway"), "https://apim123.azure-api.net/openai/v1/")
+        self.assertEqual(
+            deployment.base_url("direct"), "https://aifoundry123.services.ai.azure.com/openai/v1/"
+        )
+
+    @patch("chat_completions.subprocess.run")
+    def test_00a_treats_empty_gateway_output_as_disabled(self, run: Mock) -> None:
+        run.return_value = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=json.dumps(self.values_00a(AZURE_APIM_CHAT_COMPLETIONS_ENDPOINT="")),
+            stderr="",
+        )
+
+        deployment = chat_completions.load_deployment("dev")
+
+        self.assertIsNone(deployment.gateway_endpoint)
+
+    @patch("chat_completions.subprocess.run")
+    def test_00a_loads_an_enabled_gateway_endpoint(self, run: Mock) -> None:
+        run.return_value = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=json.dumps(
+                self.values_00a(AZURE_APIM_CHAT_COMPLETIONS_ENDPOINT="https://apim123.azure-api.net/openai/v1/")
+            ),
+            stderr="",
+        )
+
+        deployment = chat_completions.load_deployment("dev")
+
+        self.assertEqual(deployment.base_url("gateway"), "https://apim123.azure-api.net/openai/v1/")
+
+    @patch("chat_completions.subprocess.run")
+    def test_00a_rejects_a_gateway_endpoint_outside_api_management(self, run: Mock) -> None:
+        run.return_value = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=json.dumps(self.values_00a(AZURE_APIM_CHAT_COMPLETIONS_ENDPOINT="https://evil.example.com/openai/v1/")),
+            stderr="",
+        )
+
+        with self.assertRaisesRegex(chat_completions.ConfigurationError, "invalid AZURE_APIM_CHAT_COMPLETIONS_ENDPOINT"):
+            chat_completions.load_deployment("dev")
+
+    @staticmethod
+    def values_00a(**extra: str) -> dict[str, str]:
+        return {
+            "FOUNDRY_SCENARIO_LANE_ID": "00a",
+            "AZURE_AI_ACCOUNT_NAME": "aifoundry123",
+            "AZURE_AI_MODEL_DEPLOYMENT_NAME": "gpt-4.1-mini",
+            "AZURE_RESOURCE_GROUP": "rg-foundry",
+            "AZURE_SUBSCRIPTION_ID": "00000000-0000-0000-0000-000000000001",
+            **extra,
+        }
 
     def test_rejects_00c_without_a_gateway_endpoint(self) -> None:
         deployment = chat_completions.Deployment("00c", "aifoundry123", "gpt-5-mini")

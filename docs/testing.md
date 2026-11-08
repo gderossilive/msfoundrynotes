@@ -7,7 +7,9 @@ contains the 00a public lane and the independent 00c BYO VNet lane.
 These technical packages support the Microsoft Foundry Notes episodes listed in
 the [repository README](../README.md#published-episodes): the 00a and 00c Foundry
 Core foundations, both Chat Completions companions, and the 00a model benchmark,
-plus the 00a Model Fine-Tuning follow-up, which has no scheduled LinkedIn article. Article text and publication images are intentionally outside this
+plus Model Fine-Tuning, Model Monitoring, Public Gateway and Token Governance.
+The last three technical companions are released on GitHub before their
+LinkedIn articles. Article text and publication images are intentionally outside this
 repository; this document validates the reproducible code and infrastructure
 only.
 
@@ -24,7 +26,7 @@ then compiles both lanes and validates their scenario contracts, including the
 separately applied 00c gateway policy. It does
 not call Azure provisioning APIs. Core has no scenario-local blog requirement.
 
-The 00a static suite also runs the four Python unit-test modules with Azure
+The 00a static suite also runs the seven Python unit-test modules with Azure
 access mocked, including deterministic fine-tuning preparation and job contracts.
 To run only those tests from `scenarios/00-foundry-core/app`:
 
@@ -33,8 +35,21 @@ python -m unittest -v \
   test_chat_completions.py \
   test_benchmark_documents.py \
   test_prepare_finetuning_data.py \
-  test_fine_tune_documents.py
+  test_fine_tune_documents.py \
+  test_monitor_model.py \
+  test_token_limit_demo.py \
+  test_usage_report.py
 ```
+
+Install `requirements-monitoring.txt` before validation when tracing SDK
+contract coverage is required; otherwise those optional tests report skips.
+Static checks also validate the opt-in monitoring/gateway Bicep contracts,
+the shared policy and per-caller budget defaults. These checks do not
+provision Azure resources or prove live ingestion/enforcement.
+See the [monitoring](../scenarios/00-foundry-core/app/monitor_model-explained.md),
+[gateway](../scenarios/00-foundry-core/app/public_gateway-explained.md) and
+[token demo](../scenarios/00-foundry-core/app/token_limit_demo-explained.md)
+guides for historical live evidence and separately authorized reproduction.
 
 `python fine_tune_documents.py prepare` is also local-only. It generates ignored
 78-example training and 12-example validation JSONL files, leaving the ten

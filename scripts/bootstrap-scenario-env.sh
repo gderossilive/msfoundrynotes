@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 ]]; then
-  printf 'Usage: %s <level/lane> [--new-instance]\n' "$0" >&2
+if [[ $# -lt 1 ]]; then
+  printf 'Usage: %s <level/lane> [--new-instance] [--environment <name>] [--location <region>]\n' "$0" >&2
   exit 2
 fi
 
@@ -17,13 +17,28 @@ scenario_id="$SCENARIO_LEVEL_ID"
 lane_id="$SCENARIO_LANE_ID"
 network_profile="$SCENARIO_NETWORK_PROFILE"
 new_instance=false
+requested_environment=''
+requested_location=''
 
-if [[ ${2:-} == '--new-instance' ]]; then
-  new_instance=true
-elif [[ $# -eq 2 ]]; then
-  printf 'Unknown option "%s".\n' "$2" >&2
-  exit 2
-fi
+shift
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --new-instance) new_instance=true; shift ;;
+    --environment|--location)
+      if [[ $# -lt 2 || -z "$2" || "$2" == --* ]]; then
+        printf 'Option "%s" requires a value.\n' "$1" >&2
+        exit 2
+      fi
+      if [[ "$1" == --environment ]]; then
+        requested_environment="$2"
+      else
+        requested_location="$2"
+      fi
+      shift 2
+      ;;
+    *) printf 'Unknown option "%s".\n' "$1" >&2; exit 2 ;;
+  esac
+done
 
 if [[ ! -f "$env_file" ]]; then
   printf 'Missing %s. Create it from .env.example.\n' "$env_file" >&2
@@ -34,6 +49,13 @@ set -a
 # shellcheck disable=SC1090
 source "$env_file"
 set +a
+
+if [[ -n "$requested_environment" ]]; then
+  AZURE_ENV_NAME="$requested_environment"
+fi
+if [[ -n "$requested_location" ]]; then
+  AZURE_LOCATION="$requested_location"
+fi
 
 for variable in AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_LOCATION AZURE_ENV_NAME; do
   if [[ -z "${!variable:-}" ]]; then
@@ -69,11 +91,11 @@ if [[ -n "${AZURE_APIM_PUBLISHER_EMAIL:-}" && ! "$AZURE_APIM_PUBLISHER_EMAIL" =~
 fi
 
 if [[ ! "$scenario_id" =~ ^[0-9]{2}$ ]]; then
-  printf 'Scenario "%s" must start with a two-digit identifier.\n' "$1" >&2
+  printf 'Scenario "%s" must start with a two-digit identifier.\n' "${scenario_dir#"$repo_root/scenarios/"}" >&2
   exit 2
 fi
 
-if [[ "$lane_id" == 00c || "$lane_id" == 04c || "$lane_id" == 05c ]]; then
+if [[ "$lane_id" == 00a || "$lane_id" == 00c || "$lane_id" == 04c || "$lane_id" == 05c ]]; then
   command -v jq >/dev/null 2>&1 || { printf 'jq is required to validate APIM callers.\n' >&2; exit 2; }
   if ! validate_apim_principal_ids "${AZURE_APIM_ALLOWED_PRINCIPAL_IDS:-[]}"; then
     printf 'AZURE_APIM_ALLOWED_PRINCIPAL_IDS must be a JSON array of at most 100 Entra object IDs.\n' >&2
@@ -223,6 +245,9 @@ else
     --output none
 fi
 
+apim_tokens_per_minute_default=5000
+[[ "$lane_id" != 00a && "$lane_id" != 00c ]] || apim_tokens_per_minute_default=0
+
 azd env set \
   --environment "$azd_environment_name" \
   "FOUNDRY_SCENARIO_LEVEL_ID=$scenario_id" \
@@ -247,9 +272,9 @@ azd env set \
   "AZURE_APIM_DISABLE_PUBLIC_ACCESS=${AZURE_APIM_DISABLE_PUBLIC_ACCESS:-true}" \
   "AZURE_APIM_ALLOWED_PRINCIPAL_IDS=${AZURE_APIM_ALLOWED_PRINCIPAL_IDS:-[]}" \
   "AZURE_APIM_CALLS_PER_MINUTE=${AZURE_APIM_CALLS_PER_MINUTE:-60}" \
-  "AZURE_APIM_TOKENS_PER_MINUTE=${AZURE_APIM_TOKENS_PER_MINUTE:-5000}" \
+  "AZURE_APIM_TOKENS_PER_MINUTE=${AZURE_APIM_TOKENS_PER_MINUTE:-$apim_tokens_per_minute_default}" \
   "AZURE_ENABLE_TOOL_PROBE=${AZURE_ENABLE_TOOL_PROBE:-true}" \
   "${deployer_settings[@]}" \
   "${managed_compute_settings[@]}"
 
-printf 'Prepared azd environment "%s" for lane "%s" with resource group "%s".\n' "$azd_environment_name" "$1" "$resource_group"
+printf 'Prepared azd environment "%s" for lane "%s" with resource group "%s".\n' "$azd_environment_name" "${scenario_dir#"$repo_root/scenarios/"}" "$resource_group"

@@ -216,8 +216,9 @@ check_core_private_static() {
   ' <<<"$template" >/dev/null || fail '00c must not configure agent network injection or a managed network'
   pass '00c has no agent network injection or managed network'
 
-  local policy_template
+  local policy_template shared_policy_template
   policy_template=$(az bicep build --file "$scenario_root/infra/apim-policy.bicep" --stdout)
+  shared_policy_template=$(az bicep build --file "$repo_root/modules/apim/foundry-chat-policy/main.bicep" --stdout)
   jq -e '
     ([.. | objects | select(.type? == "Microsoft.ApiManagement/service" and .sku.name == "Developer")] | length == 1) and
     ([.. | objects | select(.type? == "Microsoft.ApiManagement/service") |
@@ -234,12 +235,85 @@ check_core_private_static() {
              (.properties.roleDefinitionId | contains("5e0bd9bd-7b93-4f28-af87-19fc36ad61bd")))] | length == 1)
   ' <<<"$template" >/dev/null || fail '00c API Management Developer gateway contract'
   jq -e '
+    ([.. | objects | select(.type? == "Microsoft.ApiManagement/service/apis/policies")] | length == 1) and
     ([.. | objects | select(.type? == "Microsoft.ApiManagement/service/apis/policies") |
-      select(.properties.value | contains("validate-azure-ad-token") and
-             contains("authentication-managed-identity") and
-             contains("ALLOWED_PRINCIPAL_IDS_PLACEHOLDER") | not)] | length == 1)
-  ' <<<"$policy_template" >/dev/null || fail '00c separate API Management policy contract'
+      select(.properties.value | contains("policyContent") and contains("policyXml"))] | length == 1) and
+    (.resources.policyContent.type == "Microsoft.Resources/deployments") and
+    (.resources.policyContent.properties.parameters | has("allowedPrincipalIds") and
+      has("tokensPerMinute") and has("enableUsageMetrics"))
+  ' <<<"$policy_template" >/dev/null || fail '00c policy must be rendered by the shared Foundry chat policy module'
+  jq -e '
+    (.variables.policy | contains("validate-azure-ad-token") and
+      contains("authentication-managed-identity") and
+      contains("CALLER_AUTHORIZATION_PLACEHOLDER")) and
+    (.variables.callerAuthorizationPolicy | contains("ALLOWED_PRINCIPAL_IDS_PLACEHOLDER") and
+      contains("<set-status code=\"403\"")) and
+    (.outputs.policyXml.type == "string")
+  ' <<<"$shared_policy_template" >/dev/null || fail '00c separate API Management policy contract'
   pass '00c API Management policy contract'
+
+  local candidate
+  for candidate in 0 600 10000000; do
+    validate_apim_tokens_per_minute "$candidate" || fail 'Valid token budget was rejected'
+  done
+  for candidate in '' -1 10000001 1.5 abc '600 1' '123456789'; do
+    if validate_apim_tokens_per_minute "$candidate"; then
+      fail 'Invalid token budget was accepted'
+    fi
+  done
+  jq -e '
+    .parameters.tokensPerMinute.defaultValue == 0 and
+    (.variables.tokenLimitPolicy | contains("tokensPerMinute") and contains("tokenLimitTemplate")) and
+    (.variables.tokenLimitTemplate |
+      contains("<llm-token-limit") and
+      contains("context.Variables[\"caller-object-id\"]") and
+      (contains("context.Request.Headers") | not) and
+      (contains("context.Request.IpAddress") | not) and
+      contains("estimate-prompt-tokens=\"false\"") and
+      contains("x-foundrylab-remaining-tokens")) and
+    (.variables.policy |
+      (index("CALLER_AUTHORIZATION_PLACEHOLDER") < index("TOKEN_LIMIT_PLACEHOLDER")) and
+      (index("TOKEN_LIMIT_PLACEHOLDER") < index("<authentication-managed-identity")))
+  ' <<<"$shared_policy_template" >/dev/null || fail '00c token limit must be opt-in, caller-keyed and ordered after authorization'
+  pass '00c opt-in per-caller token limit contract'
+
+  jq -e '
+    .parameters.enableUsageMetrics.defaultValue == false and
+    (.variables.usageMetricPolicy | contains("enableUsageMetrics")) and
+    (.variables.usageMetricTemplate |
+      contains("<llm-emit-token-metric") and
+      contains("context.Variables[\"caller-object-id\"]") and
+      (contains("context.Request.Headers") | not) and
+      (contains("context.Request.IpAddress") | not) and
+      ([match("<dimension"; "g")] | length) == 1) and
+    (.variables.policy |
+      (index("TOKEN_LIMIT_PLACEHOLDER") < index("USAGE_METRIC_PLACEHOLDER")) and
+      (index("USAGE_METRIC_PLACEHOLDER") < index("<authentication-managed-identity")))
+  ' <<<"$shared_policy_template" >/dev/null || fail '00c usage metrics must be opt-in, caller-keyed and ordered after authorization'
+  jq -e '
+    ([.. | objects | select(.type? == "Microsoft.Resources/deployments" and
+      (.condition? // "" | contains("enableUsageMetrics")))] | length == 1)
+  ' <<<"$policy_template" >/dev/null || fail '00c monitoring resources must be deployed only when usage metrics are enabled'
+
+  local usage_template
+  usage_template=$(az bicep build --file "$repo_root/modules/apim/foundry-usage-metrics/main.bicep" --stdout)
+  jq -e '
+    ([.. | objects | select(.type? == "Microsoft.Insights/components" and
+      .properties.DisableLocalAuth == true and .properties.WorkspaceResourceId != null)] | length == 1) and
+    (.variables.monitoringMetricsPublisherRoleId == "3913510d-42f4-4e42-8a64-420c390055eb") and
+    ([.. | objects | select(.type? == "Microsoft.Authorization/roleAssignments" and
+      .properties.principalType == "ServicePrincipal" and
+      (.properties.roleDefinitionId | contains("monitoringMetricsPublisherRoleId")))] | length == 1) and
+    ([.. | objects | select(.type? == "Microsoft.ApiManagement/service/loggers" and
+      .properties.loggerType == "applicationInsights" and
+      .properties.credentials.identityClientId == "systemAssigned")] | length == 1) and
+    ([.. | objects | select(.type? == "Microsoft.ApiManagement/service/apis/diagnostics" and
+      .properties.metrics == true and
+      (.properties | has("request") | not) and (.properties | has("response") | not))] | length == 1) and
+    ([.. | objects | select(.type? == "Microsoft.OperationalInsights/workspaces" and
+      .properties.retentionInDays == 30)] | length == 1)
+  ' <<<"$usage_template" >/dev/null || fail '00c usage metrics resources must use Entra ingestion and never log bodies'
+  pass '00c opt-in usage metrics contract'
 }
 
 run_live() {

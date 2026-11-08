@@ -23,6 +23,8 @@ No agent, capability host, agent subnet delegation, managed outbound network,
 search, storage, telemetry, VM, VPN, or Bastion is provisioned. In particular,
 private inbound access and the APIM gateway do not demonstrate agent outbound
 isolation.
+The [Italian Token Governance walkthrough](../app/token_limit_demo-explained.md)
+adds an optional per-caller budget on this existing gateway.
 
 ## Prerequisites
 
@@ -99,6 +101,67 @@ policy, the gateway returned 401 without a token or with a malformed token, and
 200 with the expected model answer and the `x-foundrylab-gateway` header for the
 allowlisted caller. The direct call still returned 403 afterwards. The 403 path
 for a valid but non-allowlisted token was not exercised.
+
+## Per-caller token limit (opt-in)
+
+The [Token Governance guide](../app/token_limit_demo-explained.md) explains
+`llm-token-limit`, keyed by the validated Entra object ID after authorization.
+`AZURE_APIM_TOKENS_PER_MINUTE` defaults to `0`, including in bootstrap.
+Successful responses expose consumed/remaining token headers; a caller over
+budget receives 429 and Retry-After. This is a gateway budget, not model
+capacity, content filtering, a cost ledger or a strict maximum per response:
+a request started below the budget can finish above it.
+
+From this lane directory:
+
+```bash
+environment=<your-00c-azd-environment>
+azd env set AZURE_APIM_TOKENS_PER_MINUTE 600 --environment "$environment"
+```
+
+Then, from the repository root, apply the policy and optionally create B:
+
+```bash
+scripts/manage-second-caller.sh 00c create "$environment"
+scripts/apply-gateway-policy.sh 00c "$environment"
+cd scenarios/00-foundry-core/app
+python token_limit_demo.py --environment "$environment" --scenario 00c \
+  --caller-b-config-dir ../../../.azure/00c-second-caller/<your-00c-azd-environment>/az
+```
+
+The service principal has no Azure role, a one-day certificate and a separate
+ignored Azure CLI profile. App registration permission is required; an
+already-authorized second user is a manual alternative. The existing
+`apply-00c-apim-policy.sh` and `manage-00c-second-caller.sh` names remain thin
+wrappers for backward compatibility.
+
+The 2026-11-02 Italy North run observed nine 200 responses (639 tokens against
+a 600 budget), then 429 with Retry-After 41 seconds, B 200, and A 200 after
+42 seconds. Developer uses a sliding window; Basic v2 on 00a uses token bucket.
+The lab and second caller were removed. Model-side 429, streaming and multiple
+gateway instances were not exercised.
+
+From the root, cleanup B and reapply the allowlist:
+
+```bash
+scripts/manage-second-caller.sh 00c cleanup "$environment"
+scripts/apply-gateway-policy.sh 00c "$environment"
+```
+
+Set the budget to `0` and reapply the policy to disable the limit.
+
+## Supporting usage metrics (opt-in)
+
+The shared policy also supports `AZURE_APIM_USAGE_METRICS=true`, default false.
+Applying it creates [telemetry resources](../../../modules/apim/foundry-usage-metrics/main.bicep)
+with Entra-only ingestion and no request/response body logging, and emits
+`llm-emit-token-metric` with Caller from the validated object ID.
+The [usage report](../app/usage_report-explained.md) compares that metric with
+model counters and demo response headers. This support is included for the
+00a Public Gateway bypass demonstration; **Usage Attribution has no new
+episode release or LinkedIn publication here**.
+
+Disabling metrics does not delete previous monitoring resources.
 
 ## Cleanup
 

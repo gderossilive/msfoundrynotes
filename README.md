@@ -13,8 +13,8 @@ exactly one to follow the repository; the lane's README is the entry point.
 
 | Lane | Configuration | Primary purpose |
 | --- | --- | --- |
-| [00a Public](scenarios/00-foundry-core/00a-foundry-core-public/README.md) | Public Foundry endpoint with Entra ID authentication | Chat Completions, the ten-document model benchmark, and supervised fine-tuning |
-| [00c BYO VNet](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md) | Private Foundry endpoint in a customer-managed VNet, reached through API Management Developer | Private networking and gateway validation |
+| [00a Public](scenarios/00-foundry-core/00a-foundry-core-public/README.md) | Public Foundry endpoint with Entra ID authentication; optional Basic v2 gateway and monitoring | Chat Completions, benchmark, fine-tuning, model monitoring and public gateway boundaries |
+| [00c BYO VNet](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md) | Private Foundry endpoint in a customer-managed VNet, reached through API Management Developer | Private networking, gateway validation and per-caller token governance |
 
 Each lane provisions its own resources and can be deployed independently. No
 agent, retrieval system, business-data source, VPN, or Bastion host is included.
@@ -25,13 +25,14 @@ The lanes are listed above once; the episodes below build on them.
 An **episode** is a LinkedIn article that explains one step of the series. It
 does not add a new deployment: every episode runs on top of a lane above, either
 by deploying that lane or by running a local client or test against it. Several
-episodes can share the same lane (00a has three, 00c has two), and an episode
+episodes can share the same lane (00a has six technical companions, 00c has three), and an episode
 may need only the code that runs against a lane you already deployed.
 
 Each article is published only on LinkedIn. This repository holds the
 reproducible technical material for it; the **Lane** column tells you which
 scenario to deploy first, and the other columns link to the guide and the exact
-version the article was written against.
+version the article was written against. A technical companion can be released
+before its article: `Not yet published` explicitly means no LinkedIn publication.
 
 | Episode | Lane | LinkedIn article | Technical material on `main` | Pinned version |
 | --- | --- | --- | --- | --- |
@@ -62,10 +63,10 @@ The diagram shows the level 00 episodes by lane, in editorial order: what is
 already published on LinkedIn, what has a pinned release waiting for its
 article, and what is still a draft. It is a plan, not a schedule: publication
 dates are not committed and the order can change. A draft episode has no
-technical companion or pinned version in this repository yet; both appear here
-when its article is published.
+episode-specific pinned version in this repository yet. Supporting shared code
+can arrive with another episode; that does not publish its article or release.
 
-![Level 00 episode plan. Lane 00a has seven episodes: Foundry Core, Chat Completions, Model Benchmark and Model Fine-Tuning are published, while Model Monitoring, Managed Compute and Public Gateway are drafts. Lane 00c has four: Foundry Core BYO VNet and Chat Completions are published, Token Governance and Usage Attribution are drafts. Lane 00b has no episode yet. Public Gateway on 00a reuses the shared APIM policy module of 00c.](docs/images/level-00-episodes-map.png)
+![Level 00 episode plan as of 2026-11-08. Lane 00a: Foundry Core, Chat Completions, Model Benchmark and Model Fine-Tuning are published on LinkedIn; Model Monitoring and Public Gateway have pinned GitHub releases with LinkedIn pending; Managed Compute remains a draft. Lane 00c: Foundry Core BYO VNet and Chat Completions are published on LinkedIn; Token Governance has a pinned GitHub release with LinkedIn pending; Usage Attribution remains a draft. Lane 00b has no episode yet.](docs/images/level-00-episodes-map.png)
 
 The diagram is also available as an editable
 [SVG](docs/images/level-00-episodes-map.svg).
@@ -78,8 +79,8 @@ The diagram is also available as an editable
   and Bicep through Azure CLI.
 - An Azure subscription with the required resource-creation and role-assignment
   permissions, registered providers, regional model availability, and quota.
-- For lane 00c, API Management Developer capacity and the Entra object IDs of
-  the intended gateway callers.
+- For lane 00c, API Management Developer capacity; for the optional 00a gateway,
+  Basic v2 capacity. Both require the Entra object IDs of intended callers.
 
 Review Azure pricing and organizational policy before provisioning. The
 templates are learning assets, not production-ready or compliance-certified
@@ -139,12 +140,17 @@ python -m unittest -v \
   test_chat_completions.py \
   test_benchmark_documents.py \
   test_prepare_finetuning_data.py \
-  test_fine_tune_documents.py
+  test_fine_tune_documents.py \
+  test_monitor_model.py \
+  test_token_limit_demo.py \
+  test_usage_report.py
 ```
 
 See [Testing and inference](docs/testing.md) for live checks and the
 [application guide](scenarios/00-foundry-core/app/README.md) for Chat
-Completions, the document benchmark, and supervised fine-tuning.
+Completions, benchmark, fine-tuning, monitoring and gateway demonstrations.
+Tracing contract coverage requires the optional
+`requirements-monitoring.txt`; without it, those tests explicitly report skips.
 
 ## Cleanup
 
@@ -157,7 +163,9 @@ azd down --environment "$AZURE_ENV_NAME" --force --purge
 ```
 
 Confirm the resource group is gone. Lane 00c includes an always-on API
-Management Developer instance that remains billable until deleted.
+Management Developer instance that remains billable until deleted. An enabled
+00a Basic v2 gateway is also always billed. Turning an optional profile off does
+not delete resources from earlier incremental deployments.
 
 ## Layout
 
