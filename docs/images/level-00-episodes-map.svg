@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1250" viewBox="0 0 1440 1250" role="img" aria-labelledby="title description">
   <title id="title">Level 00 Foundry Core: episodes mapped on lanes a, b and c - draft</title>
-  <desc id="description">Level 00 has eleven episodes. Six are published on LinkedIn. Model Monitoring and Public Gateway on 00a and Token Governance on 00c have pinned GitHub releases, with LinkedIn not yet published. Managed Compute and Usage Attribution remain drafts. Lane 00b has no episode yet. The first episode of a lane deploys the lane; the others add a client, an opt-in profile or a gateway policy on top of it. The 00a Public Gateway reuses the shared APIM policy module of 00c.</desc>
+  <desc id="description">Level 00 has eleven episodes. Six are published on LinkedIn. Model Monitoring and Public Gateway on 00a and Token Governance and Usage Attribution on 00c have pinned GitHub releases, with LinkedIn not yet published. Managed Compute remains a draft. Lane 00b has no episode yet. The first episode of a lane deploys the lane; the others add a client, an opt-in profile or a gateway policy on top of it. The 00a Public Gateway reuses the shared APIM policy module of 00c.</desc>
   <defs>
     <style>
       text { font-family: "Segoe UI", Arial, sans-serif; fill: #172b4d; }
@@ -142,12 +142,12 @@
     <text x="138" y="88" class="status">Release pinned, LinkedIn pending</text>
   </g>
   <g transform="translate(960 606)">
-    <rect width="440" height="100" rx="10" fill="#fff8e6" stroke="#d7b76c" stroke-dasharray="6 4"/>
+    <rect width="440" height="100" rx="10" fill="#e0f2fe" stroke="#7abbd7"/>
     <circle cx="30" cy="34" r="15" fill="#087f72"/><text x="30" y="40" class="num">4</text>
     <text x="60" y="40" class="label">Usage Attribution</text>
     <text x="60" y="62" class="sub">Per-caller token ledger: who used how much</text>
     <rect x="60" y="72" width="72" height="22" rx="11" fill="#854d0e"/><text x="96" y="87" class="pill">PROFILE</text>
-    <text x="144" y="88" class="status">Draft</text>
+    <text x="144" y="88" class="status">Release pinned, LinkedIn pending</text>
   </g>
 
   <!-- cross-lane reuse -->
@@ -176,5 +176,5 @@
   <rect x="40" y="1172" width="1360" height="52" rx="10" fill="#e8eff6"/>
   <text x="59" y="1203" font-size="17" font-weight="700">Shared application: one Python client family serves 00a and 00c.</text>
   <text x="730" y="1203" class="small muted">scenarios/00-foundry-core/app/</text>
-  <text x="40" y="1242" font-size="14" class="muted">Numbers show the editorial order within a lane. Plan as of 2026-11-08; publication dates are not committed.</text>
+  <text x="40" y="1242" font-size="14" class="muted">Numbers show the editorial order within a lane. Plan as of 2026-11-22; publication dates are not committed.</text>
 </svg>

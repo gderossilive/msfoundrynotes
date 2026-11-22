@@ -14,7 +14,7 @@ exactly one to follow the repository; the lane's README is the entry point.
 | Lane | Configuration | Primary purpose |
 | --- | --- | --- |
 | [00a Public](scenarios/00-foundry-core/00a-foundry-core-public/README.md) | Public Foundry endpoint with Entra ID authentication; optional Basic v2 gateway and monitoring | Chat Completions, benchmark, fine-tuning, model monitoring and public gateway boundaries |
-| [00c BYO VNet](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md) | Private Foundry endpoint in a customer-managed VNet, reached through API Management Developer | Private networking, gateway validation and per-caller token governance |
+| [00c BYO VNet](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md) | Private Foundry endpoint in a customer-managed VNet, reached through API Management Developer | Private networking, gateway validation, per-caller token governance and usage attribution |
 
 Each lane provisions its own resources and can be deployed independently. No
 agent, retrieval system, business-data source, VPN, or Bastion host is included.
@@ -25,7 +25,7 @@ The lanes are listed above once; the episodes below build on them.
 An **episode** is a LinkedIn article that explains one step of the series. It
 does not add a new deployment: every episode runs on top of a lane above, either
 by deploying that lane or by running a local client or test against it. Several
-episodes can share the same lane (00a has six technical companions, 00c has three), and an episode
+episodes can share the same lane (00a has six technical companions, 00c has four), and an episode
 may need only the code that runs against a lane you already deployed.
 
 Each article is published only on LinkedIn. This repository holds the
@@ -45,6 +45,7 @@ before its article: `Not yet published` explicitly means no LinkedIn publication
 | 00a Model Monitoring — Metrics, Traces and Evaluations, Without an Agent | 00a | Not yet published | [Monitoring commands](scenarios/00-foundry-core/app/README.md#model-monitoring-00a) and [Italian walkthrough](scenarios/00-foundry-core/app/monitor_model-explained.md) | [`episode-00a-model-monitoring-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00a-model-monitoring-v1.0.0) |
 | 00a Public Gateway — An Extra Door, Not the Only One | 00a | Not yet published | [Optional Basic v2 gateway](scenarios/00-foundry-core/00a-foundry-core-public/README.md#optional-public-gateway-api-management-basic-v2) and [Italian walkthrough](scenarios/00-foundry-core/app/public_gateway-explained.md) | [`episode-00a-public-gateway-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00a-public-gateway-v1.0.0) |
 | 00c Token Governance — The 429 Is the Budget | 00c | Not yet published | [Per-caller budget](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md#per-caller-token-limit-opt-in) and [Italian script walkthrough](scenarios/00-foundry-core/app/token_limit_demo-explained.md) | [`episode-00c-token-governance-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00c-token-governance-v1.0.0) |
+| 00c Usage Attribution — Who Used How Many Tokens? | 00c | Not yet published | [Per-caller usage metrics](scenarios/00-foundry-core/00c-foundry-core-byo-vnet/README.md#per-caller-usage-metrics-opt-in), [report commands](scenarios/00-foundry-core/app/README.md#per-caller-usage-attribution-00c) and [Italian script walkthrough](scenarios/00-foundry-core/app/usage_report-explained.md) | [`episode-00c-usage-attribution-v1.0.0`](https://github.com/gderossilive/msfoundrynotes/releases/tag/episode-00c-usage-attribution-v1.0.0) |
 
 `main` always contains the current source. A pinned version is the exact source
 the article was written against; use it to reproduce the article's results.
@@ -69,7 +70,7 @@ dates are not committed and the order can change. A draft episode has no
 episode-specific pinned version in this repository yet. Supporting shared code
 can arrive with another episode; that does not publish its article or release.
 
-![Level 00 episode plan as of 2026-11-08. Lane 00a: Foundry Core, Chat Completions, Model Benchmark and Model Fine-Tuning are published on LinkedIn; Model Monitoring and Public Gateway have pinned GitHub releases with LinkedIn pending; Managed Compute remains a draft. Lane 00c: Foundry Core BYO VNet and Chat Completions are published on LinkedIn; Token Governance has a pinned GitHub release with LinkedIn pending; Usage Attribution remains a draft. Lane 00b has no episode yet.](docs/images/level-00-episodes-map.png)
+![Level 00 episode plan as of 2026-11-22. Lane 00a: Foundry Core, Chat Completions, Model Benchmark and Model Fine-Tuning are published on LinkedIn; Model Monitoring and Public Gateway have pinned GitHub releases with LinkedIn pending; Managed Compute remains a draft. Lane 00c: Foundry Core BYO VNet and Chat Completions are published on LinkedIn; Token Governance and Usage Attribution have pinned GitHub releases with LinkedIn pending. Lane 00b has no episode yet.](docs/images/level-00-episodes-map.png)
 
 The diagram is also available as an editable
 [SVG](docs/images/level-00-episodes-map.svg).
