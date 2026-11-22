@@ -25,6 +25,8 @@ private inbound access and the APIM gateway do not demonstrate agent outbound
 isolation.
 The [Italian Token Governance walkthrough](../app/token_limit_demo-explained.md)
 adds an optional per-caller budget on this existing gateway.
+The [Italian Usage Attribution walkthrough](../app/usage_report-explained.md)
+adds optional telemetry and reconciles token usage per caller.
 
 ## Prerequisites
 
@@ -150,7 +152,7 @@ scripts/apply-gateway-policy.sh 00c "$environment"
 
 Set the budget to `0` and reapply the policy to disable the limit.
 
-## Supporting usage metrics (opt-in)
+## Per-caller usage metrics (opt-in)
 
 The shared policy also supports `AZURE_APIM_USAGE_METRICS=true`, default false.
 Applying it creates [telemetry resources](../../../modules/apim/foundry-usage-metrics/main.bicep)
@@ -158,8 +160,27 @@ with Entra-only ingestion and no request/response body logging, and emits
 `llm-emit-token-metric` with Caller from the validated object ID.
 The [usage report](../app/usage_report-explained.md) compares that metric with
 model counters and demo response headers. This support is included for the
-00a Public Gateway bypass demonstration; **Usage Attribution has no new
-episode release or LinkedIn publication here**.
+00c Usage Attribution companion and the 00a Public Gateway bypass
+demonstration. The Usage Attribution article is **Not yet published** on LinkedIn.
+
+From this lane directory:
+
+```bash
+environment=<your-00c-azd-environment>
+azd env set AZURE_APIM_USAGE_METRICS true --environment "$environment"
+```
+
+Then, from the repository root:
+
+```bash
+bash scripts/apply-gateway-policy.sh 00c "$environment"
+```
+
+This creates monitoring resources and records the workspace outputs in azd.
+The Python report itself only queries data; its signed-in user needs workspace
+query and Foundry account metric read permissions. No token limit or second
+caller is required just to collect metrics; those are separate prerequisites
+for comparing the bounded token demo's A/B response headers.
 
 Disabling metrics does not delete previous monitoring resources.
 

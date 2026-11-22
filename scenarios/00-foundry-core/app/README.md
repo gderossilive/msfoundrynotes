@@ -11,8 +11,9 @@ script has a step-by-step walkthrough in Italian:
 scripts [`prepare_finetuning_data.py` and `fine_tune_documents.py`](fine_tune_documents-explained.md).
 The new technical companions also have Italian guides:
 [Model Monitoring](monitor_model-explained.md),
-[Public Gateway](public_gateway-explained.md), and
-[Token Governance](token_limit_demo-explained.md).
+[Public Gateway](public_gateway-explained.md),
+[Token Governance](token_limit_demo-explained.md), and
+[Usage Attribution](usage_report-explained.md).
 
 ## Prerequisites
 
@@ -144,6 +145,37 @@ bounded (default 15 initial attempts, allowed 1-50), disables automatic retries
 and writes only status/counters/times to the ignored report.
 Developer sliding windows and v2 token buckets differ; a model-side 429 is
 not distinguished merely by its HTTP code. No load test is implied.
+
+## Per-caller usage attribution (00c)
+
+The [Italian usage report walkthrough](usage_report-explained.md) explains
+the opt-in telemetry profile, exact `AppMetrics` names, per-caller labels,
+whole-minute windows, and reconciliation with model counters and demo headers.
+It does not call the model, create an agent or estimate a bill.
+
+Enable `AZURE_APIM_USAGE_METRICS=true` in the selected
+[00c lane](../00c-foundry-core-byo-vnet/README.md#per-caller-usage-metrics-opt-in)
+and apply its gateway policy before generating traffic. The signed-in reader
+needs workspace query and model metric read permissions, separate from APIM's
+managed-identity publisher role. Ingestion can take several minutes.
+
+From this directory, after metrics have arrived:
+
+```bash
+python usage_report.py --environment <00c-azd-environment> --scenario 00c \
+  --caller "A=<caller-a-entra-object-id>" \
+  --caller "B=<caller-b-entra-object-id>" \
+  --since "<start-utc-iso8601>" --until "<end-utc-iso8601>" \
+  --demo-report token-limit-results.json
+```
+
+Use labels matching the token demo and a window covering the same traffic;
+omit `--demo-report` to compare only with model metrics. Exit `3` means no
+gateway data yet, not zero consumption; a mismatch returns `1` and remains
+visible in the ignored report. Costs require both explicit per-million prices.
+Reasoning is already included in completion tokens and is not billed twice
+by the estimate. `--scenario 00a` remains supported for the public gateway
+boundary demonstration, where direct traffic can cause a mismatch.
 
 ## Document classification benchmark (00a)
 
